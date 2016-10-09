@@ -1,0 +1,60 @@
+#!/bin/sh /etc/rc.common
+
+# Author: https://github.com/softwaredownload/openwrt-fanqiang
+# Date: 2015-12 
+
+START=95
+
+SERVICE_USE_PID=1
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+start() {
+	sed -i 's/114.114.114.114/127.0.0.1#3210/' /etc/dnsmasq.d/gfwlist.conf
+	/etc/init.d/dnsmasq restart
+
+    nservers=`cat /etc/servers-numeric.conf`;
+    
+    for server in $nservers;
+    do
+        addr=`echo $server|awk '{split($0,a,":"); print a[1];}'`;
+        port=`echo $server|awk '{split($0,a,":"); print a[2];}'`;
+        cred=`echo $server|awk '{split($0,a,":"); print a[3];}'`;
+
+	service_start /usr/bin/ss-redir -u -b 0.0.0.0 -s $addr -p $port -k $cred -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.$addr.$port.$cred.pid
+    	service_start /usr/bin/ss-tunnel -b 0.0.0.0 -s $addr -p $port -k $cred -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -u -f /var/run/ss-tunnel.$addr.$port.$cred.pid 
+    done
+
+    /usr/bin/shadowsocks-firewall
+
+    fqdnservers=`cat /etc/servers-fqdn.conf`;
+
+    for server in $fqdnservers;
+    do
+        name=`echo $server|awk '{split($0,a,":"); print a[1];}'`;
+        port=`echo $server|awk '{split($0,a,":"); print a[2];}'`;
+        cred=`echo $server|awk '{split($0,a,":"); print a[3];}'`;
+
+        addrs=`/usr/bin/nslookup $name | awk '/Address 1/{print substr($3,1)}'`
+
+        for addr in $addrs;
+        do
+            if [ "$addr" != "127.0.0.1" ]; then
+                service_start /usr/bin/ss-redir -u -b 0.0.0.0 -s $addr -p $port -k $cred -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.$name.$port.$cred.pid                               
+                service_start /usr/bin/ss-tunnel -b 0.0.0.0 -s $addr -p $port -k $cred -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -u -f /var/run/ss-tunnel.$name.$port.$cred.pid
+            fi;
+        done;
+    done;
+
+}
+
+stop() {
+	sed -i 's/127.0.0.1#3210/114.114.114.114/' /etc/dnsmasq.d/gfwlist.conf
+	/etc/init.d/dnsmasq restart
+
+	service_stop /usr/bin/ss-redir
+	service_stop /usr/bin/ss-tunnel
+	killall ss-redir
+	killall ss-tunnel
+	/etc/init.d/firewall restart
+}
