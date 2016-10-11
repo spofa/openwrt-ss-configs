@@ -1,4 +1,4 @@
 git add ./*
-git add shadowsocks/etc/chinadns_chnroute.txt shadowsocks/etc/dnsmasq.conf shadowsocks/etc/dnsmasq.d/accelerated-domains.china.conf shadowsocks/etc/dnsmasq.d/bogus-nxdomain.china.conf shadowsocks/etc/dnsmasq.d/gfwlist.conf shadowsocks/etc/init.d/shadowsocks shadowsocks/etc/servers.conf shadowsocks/usr/bin/chinalist shadowsocks/usr/bin/get_addr_fr_ip.sh shadowsocks/usr/bin/shadowsocks-firewall shadowsocks/usr/bin/update-servers
+git add shadowsocks/etc/chinadns_chnroute.txt shadowsocks/etc/dnsmasq.conf shadowsocks/etc/dnsmasq.d/accelerated-domains.china.conf shadowsocks/etc/dnsmasq.d/bogus-nxdomain.china.conf shadowsocks/etc/dnsmasq.d/gfwlist.conf shadowsocks/etc/init.d/shadowsocks shadowsocks/etc/servers.conf shadowsocks/usr/bin/chinalist shadowsocks/usr/bin/get_addr_fr_ip.sh shadowsocks/usr/bin/shadowsocks-firewall shadowsocks/usr/bin/update-servers shadowsocks/usr/bin/ss-reload
 git commit -m 'daily update.'
 git push
