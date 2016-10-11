@@ -4,3 +4,5 @@ wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/gnu4cn/
 echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output '/etc/servers.conf' --decrypt '/tmp/servers.en.txt'
 
 /etc/init.d/shadowsocks reload
+
+exit 0;
