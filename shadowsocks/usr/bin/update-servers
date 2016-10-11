@@ -4,13 +4,17 @@ wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/gnu4cn/
 
 echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output '/tmp/servers.conf' --decrypt '/tmp/servers.en.txt'
 
-new=`md5sum /tmp/servers.conf | awk '{print substr($1, 1)}'`
-old=`md5sum /etc/servers.conf | awk '{print substr($1, 1)}'`
+if [ -e "/tmp/servers.conf" ]; then
+    new=`md5sum /tmp/servers.conf | awk '{print substr($1, 1)}'`
+    old=`md5sum /etc/servers.conf | awk '{print substr($1, 1)}'`
 
-if [ $new = $old ]; then
-    exit 0;
+    if [ $new = $old ]; then
+        exit 0;
+    else
+        mv /tmp/servers.conf /etc/servers.conf
+        /etc/init.d/shadowsocks reload
+        exit 0;
+    fi;
 else
-    mv /tmp/servers.conf /etc/servers.conf
-    /etc/init.d/shadowsocks reload
     exit 0;
 fi;
