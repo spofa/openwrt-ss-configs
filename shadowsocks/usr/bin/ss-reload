@@ -1,0 +1,4 @@
+#!/bin/sh
+if [ `ps | grep ss- | wc -l` < 3 ]; then
+    echo reload;
+if
