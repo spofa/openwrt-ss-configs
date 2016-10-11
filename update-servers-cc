@@ -1,4 +1,4 @@
-gpg --recipient unisko@gmail.com --output ~/openwrt-ss-configs/servers.en.txt --encrypt ~/creds/servers.conf
+gpg --batch --yes --recipient unisko@gmail.com --output ~/openwrt-ss-configs/servers.en.txt --encrypt ~/creds/servers.conf
 git add servers.en.txt
 git commit -m "servers updated."
 git push
