@@ -1,6 +1,6 @@
 #!/bin/sh
 count=`ps|grep ss-|wc -l`
-if [ $count \< 3 ]; then
+if [ $count \< 4 ]; then
     echo "$(date): restart ss-redir...">>/tmp/log/ss-monitor.log && /etc/init.d/shadowsocks restart;
     exit 0;
 fi
