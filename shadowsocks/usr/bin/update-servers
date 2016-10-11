@@ -1,4 +1,6 @@
 #!/bin/sh
 
-wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
+wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/gnu4cn/openwrt-ss-configs/raw/master/servers.en.txt 
 echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output '/etc/servers.conf' --decrypt '/tmp/servers.en.txt'
+
+/etc/init.d/shadowsocks reload
