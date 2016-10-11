@@ -1,0 +1,4 @@
+#!/bin/sh
+
+wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
+echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output '/etc/servers.conf' --decrypt '/tmp/servers.en.txt'
