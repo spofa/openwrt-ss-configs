@@ -1,28 +1,54 @@
 #!/bin/sh
-fileList = "/etc/dnsmasq.conf /etc/servers.en.txt /etc/init.d/shadowsocks /usr/bin/chinalist /usr/bin/shadowsocks-firewall /usr/bin/ss-reload"
+
+remoteDir=https://github.com/gnu4cn/openwrt-ss-configs/raw/master/shadowsocks
+flag=0
+# update scripts and configs
+fileList = "/etc/dnsmasq.conf /etc/init.d/shadowsocks /usr/bin/chinalist /usr/bin/shadowsocks-firewall /usr/bin/ss-reload"
 
 for file in $fileList
 do
     fileName=`echo $file | awk '{sub(/.*\//,x)}'1`
-    wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/gnu4cn/openwrt-ss-configs/raw/master/servers.en.txt
+    tmpFile="/tmp/fileName$"
+    remoteFile=$remoteDir$file
+    wget -4 --no-check-certificate -O $tmpFile $remoteFile
+    
+    if [ -e  $tmpFile ]; then
+        oldMd5sum=`md5sum $file | awk '{print substr($1, 1)}'`
+        newMd5sum=`md5sum $tmpFile | awk '{print substr($1, 1)}'`
 
+        if [ $newMd5sum = $oldMd5sum ]; then
+            :
+        else
+            mv $tmpFile $file
+            flag=1
+        fi;
+    else
+        :
+    fi;
 
 # update /etc/servers.conf
-wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/gnu4cn/openwrt-ss-configs/raw/master/servers.en.txt 
 
-echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output '/tmp/servers.conf' --decrypt '/tmp/servers.en.txt'
+tmpEncryptedServers="/tmp/servers.en.txt"
+encryptedServers="/etc/servers.en.txt"
+servers="/etc/servers.conf"
+wget -4 --no-check-certificate -O $tmpEncryptedServers $remoteDir$encryptedServers
 
-if [ -e "/tmp/servers.conf" ]; then
-    new=`md5sum /tmp/servers.conf | awk '{print substr($1, 1)}'`
-    old=`md5sum /etc/servers.conf | awk '{print substr($1, 1)}'`
+if [ -e $tmpEncryptedServers ]; then
+    newMd5sum=`md5sum $tmpEncryptedServers | awk '{print substr($1, 1)}'`
+    oldMd5sum=`md5sum $encryptedServers | awk '{print substr($1, 1)}'`
 
-    if [ $new = $old ]; then
-        exit 0;
+    if [ $newMd5sum = $oldMd5sum ]; then
+        :
     else
-        mv /tmp/servers.conf /etc/servers.conf
-        /etc/init.d/shadowsocks reload
-        exit 0;
+        mv $tmpEncryptedServers $encryptedServers
+        echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $encryptedServers
+        flag=1
     fi;
+fi;
+
+if [ $flag -eq 1 ]; then
+    /etc/init.d/shadowsocks reload
+    exit 0;
 else
     exit 0;
 fi;
