@@ -1,4 +1,0 @@
-#!/bin/sh
-path="/etc/dnsmasq.conf"
-fileName=`echo $path | awk '{sub(/.*\//,x)}'1`
-echo $fileName
