@@ -1,7 +1,13 @@
 #!/bin/sh
+fileList = "/etc/dnsmasq.conf /etc/servers.en.txt /etc/init.d/shadowsocks /usr/bin/chinalist /usr/bin/shadowsocks-firewall /usr/bin/ss-reload"
+
+for file in $fileList
+do
+    fileName=`echo $file | awk '{sub(/.*\//,x)}'1`
+    wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/gnu4cn/openwrt-ss-configs/raw/master/servers.en.txt
 
 
-#Update /etc/servers.conf
+# update /etc/servers.conf
 wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/gnu4cn/openwrt-ss-configs/raw/master/servers.en.txt 
 
 echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output '/tmp/servers.conf' --decrypt '/tmp/servers.en.txt'

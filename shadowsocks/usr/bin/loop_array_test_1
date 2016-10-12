@@ -1,0 +1,8 @@
+#!/bin/sh
+
+fileList="/etc/dnsmasq.conf /etc/init.d/shadowsocks /usr/bin/chinalist /usr/bin/shadowsocks-firewall /usr/bin/ss-reload"
+
+for file in $fileList
+do
+    echo $file
+done
