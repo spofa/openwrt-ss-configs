@@ -1,5 +1,7 @@
 #!/bin/sh
 
+
+#Update /etc/servers.conf
 wget -4 --no-check-certificate -O /tmp/servers.en.txt https://github.com/gnu4cn/openwrt-ss-configs/raw/master/servers.en.txt 
 
 echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output '/tmp/servers.conf' --decrypt '/tmp/servers.en.txt'
