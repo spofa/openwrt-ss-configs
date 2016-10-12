@@ -8,8 +8,6 @@ fileList = "/etc/dnsmasq.conf /etc/init.d/shadowsocks /etc/crontabs/root /usr/bi
 count=0
 for file in $fileList
 do
-    count=$((count+1))
-
     fileName=`echo $file | awk '{sub(/.*\//,x)}'1`
     tmpFile="/tmp/fileName$"
     remoteFile=$remoteDir$file
@@ -24,8 +22,12 @@ do
             :
         else
             mv $tmpFile $file
-            if [ $count -eq 2 ]; then
+            if [ $count -eq 0 ]; then
+                /etc/init.d/dnsmasq reload
+            elif [ $count -eq 2 ]; then
                 /etc/init.d/cron reload
+            elif [ $count -eq 3 ]; then
+                :
             else
                 flag=1
             fi;
@@ -33,6 +35,8 @@ do
     else
         :
     fi;
+    
+    count=$((count+1))
 done;
 
 # update /etc/servers.conf
