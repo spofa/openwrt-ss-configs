@@ -5,11 +5,15 @@ flag=0
 # update scripts and configs
 fileList = "/etc/dnsmasq.conf /etc/init.d/shadowsocks /etc/crontabs/root /usr/bin/chinalist /usr/bin/shadowsocks-firewall /usr/bin/ss-reload"
 
+count=0
 for file in $fileList
 do
+    count=$((count+1))
+
     fileName=`echo $file | awk '{sub(/.*\//,x)}'1`
     tmpFile="/tmp/fileName$"
     remoteFile=$remoteDir$file
+
     wget -4 --no-check-certificate -O $tmpFile $remoteFile
     
     if [ -e  $tmpFile ]; then
@@ -20,11 +24,16 @@ do
             :
         else
             mv $tmpFile $file
-            flag=1
+            if [ $count -eq 2 ]; then
+                /etc/init.d/cron reload
+            else
+                flag=1
+            fi;
         fi;
     else
         :
     fi;
+done;
 
 # update /etc/servers.conf
 
