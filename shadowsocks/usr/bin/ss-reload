@@ -1,6 +1,8 @@
 #!/bin/sh
+
 countSSREDIR=`ps|grep ss-redir|wc -l`
 countSSTUNNEL=`ps|grep ss-tunnel|wc -l`
+
 if [ $countSSREDIR -lt 3 ] || [ $countSSTUNNEL -lt 3 ]; then
     echo "$(date): restart ss-redir...">>/tmp/log/ss-monitor.log && /etc/init.d/shadowsocks restart;
     exit 0;
