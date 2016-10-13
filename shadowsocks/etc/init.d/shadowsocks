@@ -15,13 +15,14 @@ start() {
 
     servers=`cat /etc/servers.conf`;
     count=0    
+    SERVERS_FOR_DNS=5
     for server in $servers;
     do
         addr=`echo $server|awk '{split($0,a,":"); print a[1];}'`;
         port=`echo $server|awk '{split($0,a,":"); print a[2];}'`;
         cred=`echo $server|awk '{split($0,a,":"); print a[3];}'`;
         service_start /usr/bin/ss-redir -u -b 0.0.0.0 -s $addr -p $port -k $cred -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.$count.pid
-        if [ $count \< 5 ]; then
+        if [ $count -lt $SERVERS_FOR_DNS ]; then
             service_start /usr/bin/ss-tunnel -b 0.0.0.0 -s $addr -p $port -k $cred -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -u -f /var/run/ss-tunnel.$count.pid
         fi;
 
