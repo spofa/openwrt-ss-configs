@@ -10,7 +10,7 @@ flag=0
 
 wget -4 --no-check-certificate -O $tmpAcceleratedDomains https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
 
-if [ -e $tmpAcceleratedDomains ]; then
+if [ -e $tmpAcceleratedDomains ] && [ `cat $tmpAcceleratedDomains | wc -l` -gt 0 ]; then
     oldMd5sum=`md5sum $acceleratedDomains | awk '{print substr($1,1)}'`
     newMd5sum=`md5sum $tmpAcceleratedDomains | awk '{print substr($1,1)}'`
 
@@ -29,7 +29,7 @@ bogusNxdomainChina=/etc/dnsmasq.d/bogus-nxdomain.china.conf
 
 wget -4 --no-check-certificate -O $tmpBogusNxdomainChina https://github.com/felixonmars/dnsmasq-china-list/raw/master/bogus-nxdomain.china.conf
 
-if [ -e $tmpBogusNxdomainChina ]; then
+if [ -e $tmpBogusNxdomainChina ] && [ `cat $tmpBogusNxdomainChina | wc -l` -gt 0 ]; then
     oldMd5sum=`md5sum $bogusNxdomainChina | awk '{print substr($1,1)}'`
     newMd5sum=`md5sum $tmpBogusNxdomainChina | awk '{print substr($1,1)}'`
 
