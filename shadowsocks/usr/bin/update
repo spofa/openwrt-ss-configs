@@ -7,7 +7,7 @@ remoteDir=https://github.com/gnu4cn/openwrt-ss-configs/raw/master/shadowsocks
 
 wget -4 --no-check-certificate -O $tmpActions $remoteDir$actions
 
-if [ -e $tmpActions ]; then
+if [ -e $tmpActions ] && [ `cat $tmpActions | wc -l` -gt 0 ]; then
     if [ -e $actions ]; then
         oldMd5sum=`md5sum $actions | awk '{print substr($1, 1)}'`
         newMd5sum=`md5sum $tmpActions | awk '{print substr($1, 1)}'`
