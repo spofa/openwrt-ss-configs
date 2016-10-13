@@ -28,6 +28,8 @@ do
                 /etc/init.d/cron reload
             elif [ $count -eq 3 ]; then
                 :
+            elif [ $count -eq 5 ]; then
+                :
             else
                 flag=1
             fi;
