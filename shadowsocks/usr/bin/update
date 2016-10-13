@@ -18,11 +18,13 @@ if [ -e $tmpActions ]; then
             :
         else
             mv $tmpActions $actions
+            chmod +x $actions
             eval "$actions" 
             exit 0;
         fi;
     else
         mv $tmpActions $actions
+        chmod +x $actions
         eval "$actions"
         exit 0;
     fi;

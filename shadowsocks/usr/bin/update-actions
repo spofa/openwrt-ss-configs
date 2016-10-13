@@ -37,27 +37,30 @@ do
                 fi;
             fi;
         else
-            :
+            mv $tmpFile $file
+            # /etc/dnsmasq.conf
+            if [ $count -eq 0 ]; then
+                /etc/init.d/dnsmasq reload
+            # /etc/crontabs/root
+            elif [ $count -eq 2 ]; then
+                /etc/init.d/cron reload
+            # /usr/bin/chinalist
+            elif [ $count -eq 3 ]; then
+                chmod +x $file
+                eval "$file"
+                /etc/init.d/dnsmasq reload
+            # /usr/bin/ss-reload
+            elif [ $count -eq 5 ]; then
+                chmod +x $file 
+            # /etc/init.d/shadowsocks, /usr/bin/shadowsocks-firewall
+            else
+                chmod +x $file
+                flag=1
+            fi;
+
         fi;
     else
-        mv $tmpFile $file
-        # /etc/dnsmasq.conf
-        if [ $count -eq 0 ]; then
-            /etc/init.d/dnsmasq reload
-        # /etc/crontabs/root
-        elif [ $count -eq 2 ]; then
-            /etc/init.d/cron reload
-        # /usr/bin/chinalist
-        elif [ $count -eq 3 ]; then
-            eval "$file"
-            /etc/init.d/dnsmasq reload
-        # /usr/bin/ss-reload
-        elif [ $count -eq 5 ]; then
-            :
-        # /etc/init.d/shadowsocks, /usr/bin/shadowsocks-firewall
-        else
-            flag=1
-        fi;
+        :
     fi;
     
     count=$((count+1))
