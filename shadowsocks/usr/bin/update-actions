@@ -1,7 +1,6 @@
 #!/bin/sh
 
 remoteDir=https://github.com/gnu4cn/openwrt-ss-configs/raw/master/shadowsocks
-flag=0
 # update scripts and configs
 fileList="/etc/dnsmasq.conf /etc/init.d/shadowsocks /etc/crontabs/root /usr/bin/chinalist /usr/bin/shadowsocks-firewall /usr/bin/ss-reload"
 
@@ -14,7 +13,7 @@ do
 
     wget -4 --no-check-certificate -O $tmpFile $remoteFile
     
-    if [ -e  $tmpFile ]; then
+    if [ -e $tmpFile ] && [ `cat $file | wc -l` -gt 0 ]; then
         if [ -e $file ]; then
             oldMd5sum=`md5sum $file | awk '{print substr($1, 1)}'`
             newMd5sum=`md5sum $tmpFile | awk '{print substr($1, 1)}'`
@@ -59,7 +58,6 @@ do
                 chmod +x $file
                 flag=1
             fi;
-
         fi;
     else
         :
@@ -75,7 +73,7 @@ encryptedServers="/etc/servers.en.txt"
 servers="/etc/servers.conf"
 wget -4 --no-check-certificate -O $tmpEncryptedServers $remoteDir$encryptedServers
 
-if [ -e $tmpEncryptedServers ]; then
+if [ -e $tmpEncryptedServers ] && [ `cat $tmpEncryptedServers | wc -l` -gt 0 ]; then
     newMd5sum=`md5sum $tmpEncryptedServers | awk '{print substr($1, 1)}'`
     oldMd5sum=`md5sum $encryptedServers | awk '{print substr($1, 1)}'`
 
