@@ -66,6 +66,8 @@ do
     count=$((count+1))
 done;
 
+count=0
+
 # update /etc/servers.conf
 
 tmpEncryptedServers="/tmp/servers.en.txt"
