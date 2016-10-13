@@ -45,7 +45,6 @@ fi;
 
 if [ $flag -eq 1 ]; then
     /etc/init.d/dnsmasq restart
-    exit 0;
 else
-    exit 0;
+    :
 fi;
