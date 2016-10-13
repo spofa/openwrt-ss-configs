@@ -28,11 +28,13 @@ do
                 elif [ $count -eq 2 ]; then
                     /etc/init.d/cron reload
                 elif [ $count -eq 3 ]; then
+                    chmod +x $file
                     eval "$file"
                     /etc/init.d/dnsmasq reload
                 elif [ $count -eq 5 ]; then
-                    :
+                    chmod +x $file 
                 else
+                    chmod +x $file
                     flag=1
                 fi;
             fi;
