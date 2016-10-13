@@ -9,33 +9,55 @@ count=0
 for file in $fileList
 do
     fileName=`echo $file | awk '{sub(/.*\//,x)}'1`
-    tmpFile="/tmp/fileName$"
+    tmpFile="/tmp/"$fileName
     remoteFile=$remoteDir$file
 
     wget -4 --no-check-certificate -O $tmpFile $remoteFile
     
     if [ -e  $tmpFile ]; then
-        oldMd5sum=`md5sum $file | awk '{print substr($1, 1)}'`
-        newMd5sum=`md5sum $tmpFile | awk '{print substr($1, 1)}'`
+        if [ -e $file ]; then
+            oldMd5sum=`md5sum $file | awk '{print substr($1, 1)}'`
+            newMd5sum=`md5sum $tmpFile | awk '{print substr($1, 1)}'`
 
-        if [ $newMd5sum = $oldMd5sum ]; then
-            :
-        else
-            mv $tmpFile $file
-            if [ $count -eq 0 ]; then
-                /etc/init.d/dnsmasq reload
-            elif [ $count -eq 2 ]; then
-                /etc/init.d/cron reload
-            elif [ $count -eq 3 ]; then
-                :
-            elif [ $count -eq 5 ]; then
+            if [ $newMd5sum = $oldMd5sum ]; then
                 :
             else
-                flag=1
+                mv $tmpFile $file
+                if [ $count -eq 0 ]; then
+                    /etc/init.d/dnsmasq reload
+                elif [ $count -eq 2 ]; then
+                    /etc/init.d/cron reload
+                elif [ $count -eq 3 ]; then
+                    eval "$file"
+                    /etc/init.d/dnsmasq reload
+                elif [ $count -eq 5 ]; then
+                    :
+                else
+                    flag=1
+                fi;
             fi;
+        else
+            :
         fi;
     else
-        :
+        mv $tmpFile $file
+        # /etc/dnsmasq.conf
+        if [ $count -eq 0 ]; then
+            /etc/init.d/dnsmasq reload
+        # /etc/crontabs/root
+        elif [ $count -eq 2 ]; then
+            /etc/init.d/cron reload
+        # /usr/bin/chinalist
+        elif [ $count -eq 3 ]; then
+            eval "$file"
+            /etc/init.d/dnsmasq reload
+        # /usr/bin/ss-reload
+        elif [ $count -eq 5 ]; then
+            :
+        # /etc/init.d/shadowsocks, /usr/bin/shadowsocks-firewall
+        else
+            flag=1
+        fi;
     fi;
     
     count=$((count+1))
