@@ -28,8 +28,6 @@ start() {
         count=$((count+1))
     done;
 
-    count=0
-
     /usr/bin/shadowsocks-firewall
 }
 
