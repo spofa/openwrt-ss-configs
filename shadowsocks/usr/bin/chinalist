@@ -35,7 +35,7 @@ if [ -e $tmpBogusNxdomainChina ]; then
     if [ newMd5sum = oldMd5sum ]; then
         :
     else
-        mv $newMd5sum $oldMd5sum
+        mv $tmpBogusNxdomainChina $bogusNxdomainChina
         flag=1
     fi;
 else
