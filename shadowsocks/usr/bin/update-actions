@@ -2,7 +2,7 @@
 
 remoteDir=https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/shadowsocks
 # update scripts and configs
-fileList="/etc/dnsmasq.conf /etc/init.d/shadowsocks /etc/crontabs/root /usr/bin/chinalist /usr/bin/shadowsocks-firewall /usr/bin/ss-reload /etc/dnsmasq.d/gfwlist.conf"
+fileList="/etc/dnsmasq.conf /etc/init.d/shadowsocks /etc/crontabs/root /usr/bin/chinalist /usr/bin/shadowsocks-firewall /usr/bin/ss-reload"
 
 dnsmasqReload=0
 flag=0
