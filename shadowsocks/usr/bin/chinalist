@@ -3,7 +3,7 @@
 # Author: https://github.com/softwaredownload/openwrt-fanqiang
 # Date:   2014-07-12
 
-tmpAcceleratedDomains=/tmp/accelerated-domains.china.conf
+tmpAcceleratedDomains=/tmp/accelerated-domains.china.conf.tmp
 acceleratedDomains=/etc/dnsmasq.d/accelerated-domains.china.conf
 
 flag=0
@@ -11,11 +11,16 @@ flag=0
 wget -4 --no-check-certificate -O $tmpAcceleratedDomains https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/accelerated-domains.china.conf
 
 if [ -e $tmpAcceleratedDomains ] && [ `cat $tmpAcceleratedDomains | wc -l` -gt 0 ]; then
-    oldMd5sum=`md5sum $acceleratedDomains | awk '{print substr($1,1)}'`
-    newMd5sum=`md5sum $tmpAcceleratedDomains | awk '{print substr($1,1)}'`
+    if [ -e $acceleratedDomains ]; then
+        oldMd5sum=`md5sum $acceleratedDomains | awk '{print substr($1,1)}'`
+        newMd5sum=`md5sum $tmpAcceleratedDomains | awk '{print substr($1,1)}'`
 
-    if [ $newMd5sum = $oldMd5sum ]; then
-        :
+        if [ $newMd5sum = $oldMd5sum ]; then
+            :
+        else
+            mv $tmpAcceleratedDomains $acceleratedDomains
+            flag=1
+        fi;
     else
         mv $tmpAcceleratedDomains $acceleratedDomains
         flag=1
@@ -24,17 +29,22 @@ else
     :
 fi;
 
-tmpBogusNxdomainChina=/tmp/bogus-nxdomain.china.conf
+tmpBogusNxdomainChina=/tmp/bogus-nxdomain.china.conf.tmp
 bogusNxdomainChina=/etc/dnsmasq.d/bogus-nxdomain.china.conf
 
 wget -4 --no-check-certificate -O $tmpBogusNxdomainChina https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/bogus-nxdomain.china.conf
 
 if [ -e $tmpBogusNxdomainChina ] && [ `cat $tmpBogusNxdomainChina | wc -l` -gt 0 ]; then
-    oldMd5sum=`md5sum $bogusNxdomainChina | awk '{print substr($1,1)}'`
-    newMd5sum=`md5sum $tmpBogusNxdomainChina | awk '{print substr($1,1)}'`
+    if [ -e $bogusNxdomainChina ]; then
+        oldMd5sum=`md5sum $bogusNxdomainChina | awk '{print substr($1,1)}'`
+        newMd5sum=`md5sum $tmpBogusNxdomainChina | awk '{print substr($1,1)}'`
 
-    if [ newMd5sum = oldMd5sum ]; then
-        :
+        if [ newMd5sum = oldMd5sum ]; then
+            :
+        else
+            mv $tmpBogusNxdomainChina $bogusNxdomainChina
+            flag=1
+        fi;
     else
         mv $tmpBogusNxdomainChina $bogusNxdomainChina
         flag=1
