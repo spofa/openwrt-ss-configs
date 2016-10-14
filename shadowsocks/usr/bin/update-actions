@@ -16,7 +16,7 @@ do
 
     wget -4 --no-check-certificate -O $tmpFile $remoteFile
     
-    if [ -e $tmpFile ] && [ `cat $file | wc -l` -gt 0 ]; then
+    if [ -e $tmpFile ] && [ `cat $tmpFile | wc -l` -gt 0 ]; then
         if [ -e $file ]; then
             oldMd5sum=`md5sum $file | awk '{print substr($1, 1)}'`
             newMd5sum=`md5sum $tmpFile | awk '{print substr($1, 1)}'`
