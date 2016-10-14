@@ -83,6 +83,7 @@ fi;
 
 if [ $flag -eq 1 ]; then
     /etc/init.d/shadowsocks reload
+    dnsmasqReload=0
 fi;
 
 if [ $dnsmasqReload -eq 1 ]; then
