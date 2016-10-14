@@ -11,7 +11,7 @@ count=0
 for file in $fileList
 do
     fileName=`echo $file | awk '{sub(/.*\//,x)}'1`
-    tmpFile="/tmp/"$fileName
+    tmpFile="/tmp/"$fileName".tmp"
     remoteFile=$remoteDir$file
 
     wget -4 --no-check-certificate -O $tmpFile $remoteFile
