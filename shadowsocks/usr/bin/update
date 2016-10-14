@@ -3,7 +3,7 @@
 actions=/usr/bin/update-actions
 tmpActions=/tmp/update-actions
 
-remoteDir=https://github.com/gnu4cn/openwrt-ss-configs/raw/master/shadowsocks
+remoteDir=https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/shadowsocks
 
 wget -4 --no-check-certificate -O $tmpActions $remoteDir$actions
 
