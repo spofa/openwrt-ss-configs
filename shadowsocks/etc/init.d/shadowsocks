@@ -15,7 +15,7 @@ start() {
 
     servers=`cat /etc/servers.conf`;
     count=0    
-    SERVERS_FOR_DNS=3
+    SERVERS_FOR_DNS=5
     for server in $servers;
     do
         addr=`echo $server|awk '{split($0,a,":"); print a[1];}'`;
