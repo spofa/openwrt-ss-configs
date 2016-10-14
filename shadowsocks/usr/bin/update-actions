@@ -25,7 +25,7 @@ do
                 :
             else
                 mv $tmpFile $file
-                if [ $count -eq 0 ]; then
+                if [ $count -eq 0 ] || [ $count -eq 6 ]; then
                     dnsmasqReload=1
                 elif [ $count -eq 2 ]; then
                     /etc/init.d/cron reload
