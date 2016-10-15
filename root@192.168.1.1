@@ -1,0 +1,31 @@
+#!/bin/sh
+
+actions=/usr/bin/update-actions
+tmpActions=/tmp/update-actions.tmp
+
+remoteDir=https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/shadowsocks
+
+wget -4 --no-check-certificate -O $tmpActions $remoteDir$actions
+
+if [ -e $tmpActions ] && [ `cat $tmpActions | wc -l` -gt 0 ]; then
+    if [ -e $actions ]; then
+        oldMd5sum=`md5sum $actions | awk '{print substr($1, 1)}'`
+        newMd5sum=`md5sum $tmpActions | awk '{print substr($1, 1)}'`
+
+        if [ $newMd5sum = $oldMd5sum ]; then
+            exit 0; 
+        else
+            mv $tmpActions $actions
+            chmod +x $actions
+            eval "$actions" 
+            exit 0;
+        fi;
+    else
+        mv $tmpActions $actions
+        chmod +x $actions
+        eval "$actions"
+        exit 0;
+    fi;
+else
+    exit 0;
+fi;
