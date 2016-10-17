@@ -30,7 +30,13 @@ start() {
 
         if [ $count_tun -lt $SERVERS_FOR_DNS ] && [ `expr $n % 5` -eq 1 ]; then
             service_start /usr/bin/ss-tunnel -b 0.0.0.0 -s $addr -p $port -k $cred -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -u -f /var/run/ss-tunnel.$count_tun.pid
-	    count_tun=$((count_tun+1))
+	        count_tun=$((count_tun+1))
+        elif [ $addr = "23.106.148.174" ]; then
+            service_start /usr/bin/ss-tunnel -b 0.0.0.0 -s $addr -p $port -k $cred -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -u -f /var/run/ss-tunnel.$count_tun.pid
+	        count_tun=$((count_tun+1))
+        elif [ $addr = "89.35.39.64" ]; then
+            service_start /usr/bin/ss-tunnel -b 0.0.0.0 -s $addr -p $port -k $cred -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -u -f /var/run/ss-tunnel.$count_tun.pid
+	        count_tun=$((count_tun+1))
         fi;
 
         count=$((count+1))
