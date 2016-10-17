@@ -2,4 +2,3 @@
 */30 * * * * /usr/bin/ss-reload
 * 2 14 * * /usr/bin/chinalist
 10 4 * * * /usr/bin/update
-10 5 * * * /usr/bin/update-actions
