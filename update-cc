@@ -1,9 +1,7 @@
 #!/bin/sh
-localDir="shadowsocks"
+localDir="/home/peng/openwrt-ss-configs/shadowsocks"
 
 pushFlag=0
-
-updateMsg=""
 
 push () {
     git add ./*
@@ -11,7 +9,7 @@ push () {
     git add shadowsocks/etc/dnsmasq.d/*
     git add shadowsocks/etc/init.d/*
     git add shadowsocks/usr/bin/*
-    git commit -m $updateMsg 
+    git commit -m "Daily update. "$(date +%F)
     git push
 }
 
@@ -23,19 +21,20 @@ for file in $files;
 do
     filePath=`echo $file|awk '{split($0,a,":"); print a[1];}'`
     oldFileMd5sum=`echo $file|awk '{split($0,a,":"); print a[2];}'`
+    echo $oldFileMd5sum
 
     if [ $count -eq 9 ]; then
         gpg --batch --yes --recipient unisko@gmail.com --output $localDiri$filePath --encrypt ~/creds/servers.conf
     fi;
 
     newFileMd5sum=`md5sum $localDir$filePath | awk '{print substr($1, 1)}'`
+    echo $newFileMd5sum
 
     if [ $newFileMd5sum = $oldFileMd5sum ]; then
         :
     else
         pushFlag=1
-        sed -i 's/$oldFileMd5sum/$newFileMd5sum/' $localDir$fileList
-        updateMsg=$updateMsg$filePath"\n."
+        sed -i 's/'$oldFileMd5sum'/'$newFileMd5sum'/' $localDir$fileList
     fi;
 
 done;
