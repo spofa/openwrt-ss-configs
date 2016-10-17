@@ -1,4 +1,45 @@
-gpg --batch --yes --recipient unisko@gmail.com --output ~/openwrt-ss-configs/shadowsocks/etc/servers.en.txt --encrypt ~/creds/servers.conf
-git add shadowsocks/etc/servers.en.txt
-git commit -m "servers updated."
-git push
+#!/bin/sh
+localDir="shadowsocks"
+
+pushFlag=0
+
+updateMsg=""
+
+push () {
+    git add ./*
+    git add shadowsocks/etc/*
+    git add shadowsocks/etc/dnsmasq.d/*
+    git add shadowsocks/etc/init.d/*
+    git add shadowsocks/usr/bin/*
+    git commit -m $updateMsg 
+    git push
+}
+
+fileList="/etc/fileList.conf"
+files=`cat $localDir$fileList`
+
+count=0
+for file in $files;
+do
+    filePath=`echo $file|awk '{split($0,a,":"); print a[1];}'`
+    oldFileMd5sum=`echo $file|awk '{split($0,a,":"); print a[2];}'`
+
+    if [ $count -eq 9 ]; then
+        gpg --batch --yes --recipient unisko@gmail.com --output $localDiri$filePath --encrypt ~/creds/servers.conf
+    fi;
+
+    newFileMd5sum=`md5sum $localDir$filePath | awk '{print substr($1, 1)}'`
+
+    if [ $newFileMd5sum = $oldFileMd5sum ]; then
+        :
+    else
+        pushFlag=1
+        sed -i 's/$oldFileMd5sum/$newFileMd5sum/' $localDir$fileList
+        updateMsg=$updateMsg$filePath"\n."
+    fi;
+
+done;
+
+if [ $pushFlag -eq 1 ]; then
+    push
+fi;

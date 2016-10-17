@@ -1,87 +1,90 @@
 #!/bin/sh
-
 remoteDir=https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/shadowsocks
-# update scripts and configs
-fileList="/etc/dnsmasq.conf /etc/init.d/shadowsocks /etc/crontabs/root /usr/bin/chinalist /usr/bin/shadowsocks-firewall /usr/bin/ss-reload /etc/dnsmasq.d/gfwlist.conf /usr/bin/update"
 
 dnsmasqReload=0
-flag=0
+shadowsocksReload=0
+fileListChanged=0
 
-count=0
-for file in $fileList
-do
-    fileName=`echo $file | awk '{sub(/.*\//,x)}'1`
-    tmpFile="/tmp/"$fileName".tmp"
-    remoteFile=$remoteDir$file
+servers="/etc/servers.conf"
 
-    wget -4 --no-check-certificate -O $tmpFile $remoteFile
-    
-    if [ -e $tmpFile ] && [ `cat $tmpFile | wc -l` -gt 0 ]; then
-        if [ -e $file ]; then
-            oldMd5sum=`md5sum $file | awk '{print substr($1, 1)}'`
-            newMd5sum=`md5sum $tmpFile | awk '{print substr($1, 1)}'`
+# update scripts and configs
+getRemoteFile () {
+    file=$1
+    tmpFile="/tmp/"`echo $file | awk '{sub(/.*\//,x)}'1`".tmp"
 
-            if [ $newMd5sum = $oldMd5sum ]; then
-                :
-            else
-                mv $tmpFile $file
-                if [ $count -eq 0 ] || [ $count -eq 6 ]; then
-                    dnsmasqReload=1
-                elif [ $count -eq 2 ]; then
-                    /etc/init.d/cron reload
-                # /usr/bin/chinalist, /usr/bin/ss-reload, /usr/bin/update
-                elif [ $count -eq 3 ] || [ $count -eq 5 ] || [ $count -eq 7 ]; then
-                    chmod +x $file
-                else
-                    chmod +x $file
-                    flag=1
-                fi;
-            fi;
-        else
-            mv $tmpFile $file
-            # /etc/dnsmasq.conf
-            if [ $count -eq 0 ] || [ $count -eq 6 ]; then
-                dnsmasqReload=1
-            # /etc/crontabs/root
-            elif [ $count -eq 2 ]; then
-                /etc/init.d/cron reload
-            # /usr/bin/chinalist, /usr/bin/ss-reload
-            elif [ $count -eq 3 ] || [ $count -eq 5 ] || [ $count -eq 7 ]; then
-                chmod +x $file
-            # /etc/init.d/shadowsocks, /usr/bin/shadowsocks-firewall
-            else
-                chmod +x $file
-                flag=1
-            fi;
+    wget -4 --no-check-certificate -O $tmpFile $remoteDir$file
+
+    if [ -e $tmpFile ] && [ `cat $tmpFile|wc -l` -gt 0 ]; then
+        mv $tmpFile $file
+        if [ $2 -lt 4 ]; then
+            dnsmasqReload=1
+        elif [ $2 -eq 4 ]; then
+            /etc/init.d/cron reload
+        elif [ $2 -eq 5 ] || [ $2 -eq 6 ]; then
+            chmod +x $file
+            shadowsocksReload=1
+        elif [ $2 -eq 7 ]; then
+            shadowsocksReload=1
+        elif [ $2 -eq 8 ]; then
+            chmod +x $file
+        elif [ $2 -eq 9 ]; then
+            shadowsocksReload=1
+            echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
         fi;
     else
         :
     fi;
-    
-    count=$((count+1))
-done;
+}
 
-# update /etc/servers.conf
+fileList="/etc/fileList.conf"
+tmpFileList="/tmp/fileList.conf.tmp"
 
-tmpEncryptedServers="/tmp/servers.en.txt"
-encryptedServers="/etc/servers.en.txt"
-servers="/etc/servers.conf"
-wget -4 --no-check-certificate -O $tmpEncryptedServers $remoteDir$encryptedServers
+wget -4 --no-check-certificate -O $tmpFileList $remoteDir$fileList
 
-if [ -e $tmpEncryptedServers ] && [ `cat $tmpEncryptedServers | wc -l` -gt 0 ]; then
-    newMd5sum=`md5sum $tmpEncryptedServers | awk '{print substr($1, 1)}'`
-    oldMd5sum=`md5sum $encryptedServers | awk '{print substr($1, 1)}'`
+if [ -e $tmpFileList ] && [ `cat $tmpFileList | wc -l` -gt 0 ]; then
+    newFiles=`cat $tmpFileList`
 
-    if [ $newMd5sum = $oldMd5sum ]; then
-        :
+    count=0
+
+    if [ -e $fileList ]; then
+        for newFile in $newFiles;
+        do
+            newFilePath=`echo $newFile|awk '{split($0,a,":"); print a[1];}'`
+            newFileMd5sum=`echo $newFile|awk '{split($0,a,":"); print a[2];}'`
+
+            targetFile=`cat $fileList | grep $newFilePath`
+
+            if test -z "targetFile"; then
+                fileListChanged=1
+                getRemoteFile $newFilePath $count
+            else
+                oldFileMd5sum=`echo $targetFile|awk '{split($0,a,":"); print a[2];}'`
+                if [ $oldFileMd5sum = $newFileMd5sum ]; then
+                    :
+                else
+                    fileListChanged=1
+                    getRemoteFile $newFilePath $count
+                fi;
+            fi;
+
+            count=$((count+1))
+        done;
     else
-        mv $tmpEncryptedServers $encryptedServers
-        echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $encryptedServers
-        flag=1
+        fileListChanged=1
+        for file in $newFiles;
+        do
+            filePath=`echo $file|awk '{split($0,a,":"); print a[1];}'`
+            getRemoteFile $filePath $count
+
+            count=$((count+1))
+        done;
     fi;
+
+if [ $fileListChanged -eq 1 ]; then
+    mv $tmpFileList $fileList
 fi;
 
-if [ $flag -eq 1 ]; then
+if [ $shadowsocksReload -eq 1 ]; then
     /etc/init.d/shadowsocks reload
     dnsmasqReload=0
 fi;
