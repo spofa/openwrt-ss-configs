@@ -1,7 +1,0 @@
-git add ./*
-git add shadowsocks/etc/*
-git add shadowsocks/etc/dnsmasq.d/*
-git add shadowsocks/etc/init.d/*
-git add shadowsocks/usr/bin/*
-git commit -m 'daily update.'
-git push
