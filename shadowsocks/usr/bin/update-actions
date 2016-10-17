@@ -79,6 +79,7 @@ if [ -e $tmpFileList ] && [ `cat $tmpFileList | wc -l` -gt 0 ]; then
             count=$((count+1))
         done;
     fi;
+fi;
 
 if [ $fileListChanged -eq 1 ]; then
     mv $tmpFileList $fileList
