@@ -1,5 +1,6 @@
 #!/bin/sh
 localDir="/home/peng/openwrt-ss-configs/shadowsocks"
+servers="/home/peng/creds/servers.conf"
 
 pushFlag=0
 
@@ -23,7 +24,7 @@ do
     oldFileMd5sum=`echo $file|awk '{split($0,a,":"); print a[2];}'`
 
     if [ $count -eq 9 ]; then
-        gpg --batch --yes --recipient unisko@gmail.com --output $localDiri$filePath --encrypt ~/creds/servers.conf
+        gpg --batch --yes --recipient unisko@gmail.com --output $localDir$filePath --encrypt $servers
     fi;
 
     newFileMd5sum=`md5sum $localDir$filePath | awk '{print substr($1, 1)}'`
@@ -34,6 +35,8 @@ do
         pushFlag=1
         sed -i 's/'$oldFileMd5sum'/'$newFileMd5sum'/' $localDir$fileList
     fi;
+
+    count=$((count+1))
 
 done;
 
