@@ -23,10 +23,6 @@ do
     filePath=`echo $file|awk '{split($0,a,":"); print a[1];}'`
     oldFileMd5sum=`echo $file|awk '{split($0,a,":"); print a[2];}'`
 
-    if [ $count -eq 9 ]; then
-        gpg --batch --yes --recipient unisko@gmail.com --output $localDir$filePath --encrypt $servers
-    fi;
-
     newFileMd5sum=`md5sum $localDir$filePath | awk '{print substr($1, 1)}'`
 
     if [ $newFileMd5sum = $oldFileMd5sum ]; then
