@@ -1,7 +1,9 @@
 #!/bin/sh
 
 updateFlag=0
-count=0
+get_remote_files_tries=0
+TRIES=4
+remote_file_fetched=0
 
 update_remote_files () {
     localBaseDir="/home/peng/openwrt-ss-configs/"
@@ -20,6 +22,8 @@ update_remote_files () {
         wget -4 --no-check-certificate -O $tmpFile $remoteFileUrl 
 
         if [ -e $tmpFile ] && [ `cat $tmpFile | wc -l` -gt 0 ]; then
+            remote_file_fetched=1
+
             if [ -e $targetFile ]; then
                 oldMd5sum=`md5sum $targetFile | awk '{print substr($1,1)}'`
                 newMd5sum=`md5sum $tmpFile | awk '{print substr($1,1)}'`
@@ -36,7 +40,7 @@ update_remote_files () {
             fi;
 
         else                                                                                    
-            :                                                                                                
+            remote_file_fetched=0
         fi;                                                                        
     done;
 
@@ -47,6 +51,8 @@ update_remote_files () {
     wget -O- $dataUrl | awk -F\| '/CN\|ipv4/ { printf("%s/%d\n", $4, 32-log($5)/log(2)) }' > $tmpFile
     
     if [ -e $tmpFile ] && [ `cat $tmpFile | wc -l` -gt 0 ]; then
+        remote_file_fetched=1
+
         if [ -e targetFile ]; then
             oldMd5sum=`md5sum $targetFile | awk '{print substr($1,1)}'`
             newMd5sum=`md5sum $tmpFile | awk '{print substr($1,1)}'`
@@ -62,15 +68,14 @@ update_remote_files () {
             updateFlag=1
         fi;
     else
-        :
+        remote_file_fetched=0
     fi;
-
 }
 
-until [ $updateFlag -eq 1 ] || [ $count -gt 6 ]
+until [ $remote_file_fetched -eq 1 ] || [ $get_remote_files_tries -gt $TRIES ]
 do
     update_remote_files
-    count=$((count+1))
+    get_remote_files_tries=$((get_remote_files_tries+1))
 done;
 
 if [ $updateFlag -eq 1 ]; then

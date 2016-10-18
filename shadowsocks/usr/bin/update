@@ -4,84 +4,100 @@ remoteDir=https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/sha
 dnsmasqReload=0
 shadowsocksReload=0
 fileListChanged=0
+TRIES=4
 
 servers="/etc/servers.conf"
 
 # update scripts and configs
 getRemoteFile () {
-    file=$1
-    tmpFile="/tmp/"`echo $file | awk '{sub(/.*\//,x)}'1`".tmp"
+    get_file_tries=0
+    file_fetched=0
 
-    wget -4 --no-check-certificate -O $tmpFile $remoteDir$file
+    until [ $file_fetched -eq 1 ] || [ $get_file_tries -gt $TRIES ]
+    do
+        file=$1
+        tmpFile="/tmp/"`echo $file | awk '{sub(/.*\//,x)}'1`".tmp"
 
-    if [ -e $tmpFile ] && [ `cat $tmpFile|wc -l` -gt 0 ]; then
-        mv $tmpFile $file
-        if [ $2 -lt 4 ]; then
-            dnsmasqReload=1
-        elif [ $2 -eq 4 ]; then
-            /etc/init.d/cron reload
-        elif [ $2 -eq 5 ] || [ $2 -eq 6 ]; then
-            chmod +x $file
-            shadowsocksReload=1
-        elif [ $2 -eq 7 ]; then
-            shadowsocksReload=1
-        elif [ $2 -eq 8 ]; then
-            chmod +x $file
-        elif [ $2 -eq 9 ]; then
-            shadowsocksReload=1
-            echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
+        wget -4 --no-check-certificate -O $tmpFile $remoteDir$file
+
+        if [ -e $tmpFile ] && [ `cat $tmpFile|wc -l` -gt 0 ]; then
+            file_fetched=1
+
+            mv $tmpFile $file
+            if [ $2 -lt 4 ]; then
+                dnsmasqReload=1
+            elif [ $2 -eq 4 ]; then
+                /etc/init.d/cron reload
+            elif [ $2 -eq 5 ] || [ $2 -eq 6 ]; then
+                chmod +x $file
+                shadowsocksReload=1
+            elif [ $2 -eq 7 ]; then
+                shadowsocksReload=1
+            elif [ $2 -eq 8 ]; then
+                chmod +x $file
+            elif [ $2 -eq 9 ]; then
+                shadowsocksReload=1
+                echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
+            fi;
+        else
+            :
         fi;
-    else
-        :
-    fi;
+    done;
 }
 
-fileList="/etc/fileList.conf"
-tmpFileList="/tmp/fileList.conf.tmp"
+file_list_fetched=0
+get_file_list_tries=0
 
-wget -4 --no-check-certificate -O $tmpFileList $remoteDir$fileList
+until [ $file_list_fetched -eq 1 ] || [ $get_file_list_tries -gt TRIES ]
+do
+    fileList="/etc/fileList.conf"
+    tmpFileList="/tmp/fileList.conf.tmp"
 
-if [ -e $tmpFileList ] && [ `cat $tmpFileList | wc -l` -gt 0 ]; then
-    newFiles=`cat $tmpFileList`
+    wget -4 --no-check-certificate -O $tmpFileList $remoteDir$fileList
 
-    count=0
+    if [ -e $tmpFileList ] && [ `cat $tmpFileList | wc -l` -gt 0 ]; then
+        file_list_fetched=1
 
-    if [ -e $fileList ]; then
-        for newFile in $newFiles;
-        do
-            newFilePath=`echo $newFile|awk '{split($0,a,":"); print a[1];}'`
-            newFileMd5sum=`echo $newFile|awk '{split($0,a,":"); print a[2];}'`
+        newFiles=`cat $tmpFileList`
 
-            targetFile=`cat $fileList | grep $newFilePath`
+        count=0
 
-            if test -z "targetFile"; then
-                fileListChanged=1
-                getRemoteFile $newFilePath $count
-            else
-                oldFileMd5sum=`echo $targetFile|awk '{split($0,a,":"); print a[2];}'`
-                if [ $oldFileMd5sum = $newFileMd5sum ]; then
-                    :
-                else
+        if [ -e $fileList ]; then
+            for newFile in $newFiles;
+            do
+                newFilePath=`echo $newFile|awk '{split($0,a,":"); print a[1];}'`
+                newFileMd5sum=`echo $newFile|awk '{split($0,a,":"); print a[2];}'`
+
+                targetFile=`cat $fileList | grep $newFilePath`
+
+                if test -z "targetFile"; then
                     fileListChanged=1
                     getRemoteFile $newFilePath $count
+                else
+                    oldFileMd5sum=`echo $targetFile|awk '{split($0,a,":"); print a[2];}'`
+                    if [ $oldFileMd5sum = $newFileMd5sum ]; then
+                        :
+                    else
+                        fileListChanged=1
+                        getRemoteFile $newFilePath $count
+                    fi;
                 fi;
-            fi;
+                count=$((count+1))
+            done;
+        else
+            fileListChanged=1
+            for file in $newFiles;
+            do
+                filePath=`echo $file|awk '{split($0,a,":"); print a[1];}'`
+                getRemoteFile $filePath $count
 
-            count=$((count+1))
-        done;
+                count=$((count+1))
+            done;
+        fi;
     else
-        fileListChanged=1
-        for file in $newFiles;
-        do
-            filePath=`echo $file|awk '{split($0,a,":"); print a[1];}'`
-            getRemoteFile $filePath $count
-
-            count=$((count+1))
-        done;
+       : 
     fi;
-else
-    exit 0;
-fi;
+done
 
 if [ $fileListChanged -eq 1 ]; then
     mv $tmpFileList $fileList
