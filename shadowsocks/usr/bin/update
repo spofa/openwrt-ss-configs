@@ -48,7 +48,7 @@ getRemoteFile () {
 file_list_fetched=0
 get_file_list_tries=0
 
-until [ $file_list_fetched -eq 1 ] || [ $get_file_list_tries -gt TRIES ]
+until [ $file_list_fetched -eq 1 ] || [ $get_file_list_tries -gt $TRIES ]
 do
     fileList="/etc/fileList.conf"
     tmpFileList="/tmp/fileList.conf.tmp"
