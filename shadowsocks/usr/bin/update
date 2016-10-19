@@ -106,7 +106,7 @@ done
 
 if [ $fileListChanged -eq 1 ]; then
     mv $tmpFileList $fileList
-    echo `eval $time`" - " $fileList" change applied." >> $LOG
+    echo `eval $time`" - "$fileList" change applied." >> $LOG
 fi;
 
 if [ $shadowsocksReload -eq 1 ]; then
