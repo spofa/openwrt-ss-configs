@@ -99,8 +99,6 @@ do
                 count=$((count+1))
             done;
         fi;
-        echo `eval $time`" - " $fileList" change applied." >> $LOG
-
     else
         echo `eval $time`" - "$fileList" fetch failed. " >> $LOG
     fi;
@@ -108,6 +106,7 @@ done
 
 if [ $fileListChanged -eq 1 ]; then
     mv $tmpFileList $fileList
+    echo `eval $time`" - " $fileList" change applied." >> $LOG
 fi;
 
 if [ $shadowsocksReload -eq 1 ]; then
