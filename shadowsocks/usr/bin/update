@@ -1,5 +1,8 @@
 #!/bin/sh
+LOG="/var/log/update.log"
+
 remoteDir=https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/shadowsocks
+time="$(date +'%F %H:%M:%S')"
 
 dnsmasqReload=0
 shadowsocksReload=0
@@ -39,8 +42,10 @@ getRemoteFile () {
                 shadowsocksReload=1
                 echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
             fi;
+
+            echo `eval $time`" - "$file" change applied." >> $LOG
         else
-            :
+            echo `eval $time`" - "$file" fetch failed." >> $LOG
         fi;
     done;
 }
@@ -94,8 +99,10 @@ do
                 count=$((count+1))
             done;
         fi;
+        echo `eval $time`" - " $fileList" change applied." >> $LOG
+
     else
-       : 
+        echo `eval $time`" - "$fileList" fetch failed. " >> $LOG
     fi;
 done
 
