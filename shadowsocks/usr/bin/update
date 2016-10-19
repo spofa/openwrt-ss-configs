@@ -2,7 +2,7 @@
 LOG="/var/log/update.log"
 
 remoteDir=https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/shadowsocks
-time="$(date +'%F %H:%M:%S')"
+time="echo $(date +'%F %H:%M:%S')"
 
 dnsmasqReload=0
 shadowsocksReload=0
