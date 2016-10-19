@@ -16,7 +16,7 @@ start() {
     servers=`cat /etc/servers.conf`;
 
     count=0    
-    SERVERS_FOR_DNS=6
+    SERVERS_FOR_DNS=8
     count_tun=0
 
     for server in $servers;
