@@ -14,6 +14,7 @@ servers="/etc/servers.conf"
 # change wireless option
 wireless () {
     /sbin/uci set wireless.@wifi-device[0].channel=auto
+    /sbin/uci set wireless.@wifi-device[0].txpower=20
     /sbin/uci commit wireless
     /sbin/wifi
 }
