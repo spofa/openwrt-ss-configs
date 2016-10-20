@@ -42,10 +42,8 @@ getRemoteFile () {
                 shadowsocksReload=1
                 echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
             elif [ $2 -eq 10 ]; then
-                /etc/init.d/network reload
-            elif [ $2 -eq 11 ]; then
                 /etc/init.d/dropbear reload
-            elif [ $2 -eq 12 ]; then
+            elif [ $2 -eq 11 ]; then
                 chmod +x $file;
             fi;
 
