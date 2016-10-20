@@ -86,7 +86,7 @@ do
                     getRemoteFile $newFilePath $count
                 else
                     oldFileMd5sum=`echo $targetFile|awk '{split($0,a,":"); print a[2];}'`
-                    if [ $oldFileMd5sum = $newFileMd5sum ]; then
+                    if [ "$oldFileMd5sum" = "$newFileMd5sum" ]; then
                         :
                     else
                         fileListChanged=1
