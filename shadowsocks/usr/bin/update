@@ -11,6 +11,13 @@ TRIES=4
 
 servers="/etc/servers.conf"
 
+# change wireless option
+wireless () {
+    /sbin/uci set wireless.@wifi-device[0].channel=auto
+    /sbin/uci commit wireless
+    /sbin/wifi
+}
+
 # update scripts and configs
 getRemoteFile () {
     get_file_tries=0
@@ -121,3 +128,5 @@ fi;
 if [ $dnsmasqReload -eq 1 ]; then
     /etc/init.d/dnsmasq reload
 fi;
+
+wireless
