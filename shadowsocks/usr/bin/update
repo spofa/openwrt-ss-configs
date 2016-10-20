@@ -53,6 +53,8 @@ getRemoteFile () {
                 /etc/init.d/dropbear reload
             elif [ $2 -eq 11 ]; then
                 chmod +x $file;
+            elif [ $2 -eq 12 ]; then
+                /etc/init.d/firewall reload
             fi;
 
             echo `eval $time`" - "$file" change applied." >> $LOG
