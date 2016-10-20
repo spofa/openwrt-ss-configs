@@ -43,6 +43,8 @@ getRemoteFile () {
                 echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
             elif [ $2 -eq 10 ]; then
                 /etc/init.d/network reload
+            elif [ $2 -eq 11 ]; then
+                /etc/init.d/dropbear reload
             fi;
 
             echo `eval $time`" - "$file" change applied." >> $LOG

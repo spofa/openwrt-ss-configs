@@ -1,5 +1,8 @@
 #!/bin/sh
+LOG="/var/log/update.log"
+
 remoteDir=https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/shadowsocks
+time="echo $(date +'%F %H:%M:%S')"
 
 dnsmasqReload=0
 shadowsocksReload=0
@@ -38,9 +41,15 @@ getRemoteFile () {
             elif [ $2 -eq 9 ]; then
                 shadowsocksReload=1
                 echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
+            elif [ $2 -eq 10 ]; then
+                /etc/init.d/network reload
+            elif [ $2 -eq 11 ]; then
+                /etc/init.d/dropbear reload
             fi;
+
+            echo `eval $time`" - "$file" change applied." >> $LOG
         else
-            :
+            echo `eval $time`" - "$file" fetch failed." >> $LOG
         fi;
     done;
 }
@@ -48,7 +57,7 @@ getRemoteFile () {
 file_list_fetched=0
 get_file_list_tries=0
 
-until [ $file_list_fetched -eq 1 ] || [ $get_file_list_tries -gt TRIES ]
+until [ $file_list_fetched -eq 1 ] || [ $get_file_list_tries -gt $TRIES ]
 do
     fileList="/etc/fileList.conf"
     tmpFileList="/tmp/fileList.conf.tmp"
@@ -95,12 +104,13 @@ do
             done;
         fi;
     else
-       : 
+        echo `eval $time`" - "$fileList" fetch failed. " >> $LOG
     fi;
 done
 
 if [ $fileListChanged -eq 1 ]; then
     mv $tmpFileList $fileList
+    echo `eval $time`" - "$fileList" change applied." >> $LOG
 fi;
 
 if [ $shadowsocksReload -eq 1 ]; then
