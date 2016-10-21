@@ -45,6 +45,10 @@ install_pkgs () {
         fi;
     done;
 }
+
+wireless
+install_pkgs
+
 # update scripts and configs
 getRemoteFile () {
     get_file_tries=0
@@ -161,5 +165,3 @@ fi;
 if [ $dnsmasqReload -eq 1 ]; then
     /etc/init.d/dnsmasq reload
 fi;
-
-wireless
