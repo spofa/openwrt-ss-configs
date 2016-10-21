@@ -31,6 +31,20 @@ wireless () {
     fi;
 }
 
+install_pkgs () {
+    pkgs_need="ipset wget gnupg curl ca-certificates"
+   
+    /bin/opkg update 
+    /bin/opkg list-installed > /tmp/pkgs_installed.tmp
+
+    for pkg in $pkgs_need
+    do
+        result=`cat /tmp/pkgs_installed.tmp | grep $pkg`        
+        if test -z "$result"; then
+            /bin/opkg install $pkg
+        fi;
+    done;
+}
 # update scripts and configs
 getRemoteFile () {
     get_file_tries=0
@@ -67,6 +81,10 @@ getRemoteFile () {
                 chmod +x $file;
             elif [ $2 -eq 12 ]; then
                 /etc/init.d/firewall reload
+            elif [ $2 -eq 13 ]; then
+                chmod +x $file
+            elif [ $2 -eq 14 ]; then
+                source $file
             fi;
 
             echo `eval $time`" - "$file" change applied." >> $LOG
