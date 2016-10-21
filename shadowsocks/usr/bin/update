@@ -78,7 +78,7 @@ getRemoteFile () {
                 chmod +x $file
             elif [ $2 -eq 9 ]; then
                 shadowsocksReload=1
-                echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
             elif [ $2 -eq 10 ]; then
                 /etc/init.d/dropbear reload
             elif [ $2 -eq 11 ]; then
@@ -89,6 +89,8 @@ getRemoteFile () {
                 chmod +x $file
             elif [ $2 -eq 14 ]; then
                 source $file
+            elif [ $2 -eq 15 ]; then
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output /etc/dropbear/id_rsa --decrypt $file    
             fi;
 
             echo `eval $time`" - "$file" change applied." >> $LOG
