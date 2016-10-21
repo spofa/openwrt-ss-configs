@@ -34,13 +34,18 @@ wireless () {
 install_pkgs () {
     pkgs_need="ipset wget gnupg curl ca-certificates"
    
-    /bin/opkg update 
     /bin/opkg list-installed > /tmp/pkgs_installed.tmp
+
+    repo_updated=0
 
     for pkg in $pkgs_need
     do
         result=`cat /tmp/pkgs_installed.tmp | grep $pkg`        
         if test -z "$result"; then
+            if [ $repo_updated -eq 0 ]; then
+                /bin/opkg update
+                repo_updated=1
+            fi;
             /bin/opkg install $pkg
         fi;
     done;
