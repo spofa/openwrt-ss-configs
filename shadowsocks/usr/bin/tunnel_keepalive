@@ -11,7 +11,7 @@ createTunnel() {
     remote_port=`expr 20000 + $num`
 
     /usr/bin/ssh -i /etc/dropbear/id_rsa -N -R $remote_port:$ip:2222 peng@xfoss.com -p 29792
-    if [[ $? -eq 0 ]]; then
+    if [ $? -eq 0 ]; then
         echo "Tunnel to jumpbox created successfully"
     else
         echo "An error occurred creating a tunnel to jumpbox. RC was $?"
@@ -20,7 +20,7 @@ createTunnel() {
 
 /bin/pidof ssh
 
-if [[ $? -ne 0 ]]; then
+if [ $? -ne 0 ]; then
     echo "Creating new tunnel connection"
     createTunnel
 fi
