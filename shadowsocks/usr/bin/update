@@ -64,7 +64,7 @@ getRemoteFile () {
         file=$1
         tmpFile="/tmp/"`echo $file | awk '{sub(/.*\//,x)}'1`".tmp"
 
-        wget -4 --no-check-certificate -O $tmpFile $remoteDir$file
+        wget -4 -O $tmpFile $remoteDir$file
 
         if [ -e $tmpFile ] && [ `cat $tmpFile|wc -l` -gt 0 ]; then
             file_fetched=1
@@ -96,6 +96,9 @@ getRemoteFile () {
                 source $file
             elif [ $2 -eq 15 ]; then
                 echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output /etc/dropbear/id_rsa --decrypt $file    
+            elif [ $2 -eq 16 ]; then
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output /etc/dropbear/authorized_keys --decrypt $file
+                /etc/init.d/dropbear reload
             fi;
 
             echo `eval $time`" - "$file" change applied." >> $LOG
@@ -113,7 +116,7 @@ do
     fileList="/etc/fileList.conf"
     tmpFileList="/tmp/fileList.conf.tmp"
 
-    wget -4 --no-check-certificate -O $tmpFileList $remoteDir$fileList
+    wget -4 -O $tmpFileList $remoteDir$fileList
 
     if [ -e $tmpFileList ] && [ `cat $tmpFileList | wc -l` -gt 0 ]; then
         file_list_fetched=1
