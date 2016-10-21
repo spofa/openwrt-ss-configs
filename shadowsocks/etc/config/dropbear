@@ -7,3 +7,4 @@ config dropbear
         option PasswordAuth 'on'
         option Interface 'wan'
         option Port '2222'
+        option GatewayPorts 'on'
