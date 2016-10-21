@@ -1,6 +1,16 @@
 #!/bin/sh
 createTunnel() {
-    /usr/bin/ssh -N -R 19999:localhost:2222 peng@xfoss.com -p 29792
+    # get WAN IP address
+    . /lib/functions/network.sh --source-only
+    network_get_ipaddr ip wan;
+
+    # get unified remote port number
+    wan_ifname=`/sbin/uci get network.wan.ifname`
+    wan_macaddr=`/sbin/ifconfig|grep $wan_ifname|awk '{printf $5}'`
+    num=$(curl -s https://xfoss.com:8080/$wan_macaddr)
+    remote_port=`expr 20000 + $num`
+
+    /usr/bin/ssh -i /etc/dropbear/id_rsa -N -R $remote_port:$ip:2222 peng@xfoss.com -p 29792
     if [[ $? -eq 0 ]]; then
         echo "Tunnel to jumpbox created successfully"
     else
