@@ -1,0 +1,13 @@
+#!/bin/sh
+local_key="/home/peng/creds/id_rsa"
+remote_key="/home/peng/creds/authorized_keys"
+
+encrypted_local_key="/home/peng/openwrt-ss-configs/shadowsocks/etc/dropbear/id_rsa.en"
+encrypted_remote_key="/home/peng/openwrt-ss-configs/shadowsocks/etc/dropbear/authorized_keys.en"
+
+update_cc="/home/peng/openwrt-ss-configs/update-cc"
+
+gpg --batch --yes --recipient unisko@gmail.com --output $encrypted_local_key --encrypt $local_key
+gpg --batch --yes --recipient unisko@gmail.com --output $encrypted_remote_key --encrypt $remote_key
+
+eval "$update_cc"
