@@ -1,16 +1,16 @@
-#!/bin/bash
+#!/bin/sh
 createTunnel() {
     /usr/bin/ssh -N -R 19999:localhost:2222 peng@xfoss.com -p 29792
     if [[ $? -eq 0 ]]; then
-        echo Tunnel to jumpbox created successfully
+        echo "Tunnel to jumpbox created successfully"
     else
-        echo An error occurred creating a tunnel to jumpbox. RC was $?
+        echo "An error occurred creating a tunnel to jumpbox. RC was $?"
     fi
 }
 
 /bin/pidof ssh
 
 if [[ $? -ne 0 ]]; then
-    echo Creating new tunnel connection
+    echo "Creating new tunnel connection"
     createTunnel
 fi
