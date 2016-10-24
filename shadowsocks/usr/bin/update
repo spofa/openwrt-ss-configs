@@ -31,6 +31,28 @@ wireless () {
     fi;
 }
 
+wan_mac_bind () {
+    # get current WAN mac address
+    wan_ifname=`/sbin/uci get network.wan.ifname`
+    wan_macaddr=`/sbin/ifconfig|grep $wan_ifname|awk '{printf $5}'`
+
+    if [ "$wan_macaddr" = "04:A1:51:8E:D1:0B" ]; then
+        occupied=1
+
+        until [ $occupied -eq 0 ]
+        do
+            NEWMAC=$(dd if=/dev/urandom bs=1024 count=1 2>/dev/null | md5sum | sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\)\(..\).*$/\1:\2:\3:\4:\5:\6/')
+            result=$(curl -s https://xfoss.com:8080/$NEWMAC)
+            is_existed=`echo $result | awk '{split($0,a,":"); print a[2];}'`
+            if [ "$is_existed" = "existed" ]; then
+                :
+            else
+                occupied=0
+            fi;
+        done;
+    fi;
+}
+
 install_pkgs () {
     pkgs_need="ipset wget gnupg curl ca-certificates"
    
@@ -52,6 +74,7 @@ install_pkgs () {
 }
 
 wireless
+wan_mac_bind
 install_pkgs
 
 # update scripts and configs
