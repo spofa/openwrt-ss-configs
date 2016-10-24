@@ -48,6 +48,9 @@ wan_mac_bind () {
                 :
             else
                 occupied=0
+                /sbin/uci set network.wan.macaddr=$NEWMAC
+                /sbin/uci commit network
+                /etc/init.d/network reload
             fi;
         done;
     fi;

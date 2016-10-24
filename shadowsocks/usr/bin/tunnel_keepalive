@@ -7,7 +7,7 @@ createTunnel() {
     # get unified remote port number
     wan_ifname=`/sbin/uci get network.wan.ifname`
     wan_macaddr=`/sbin/ifconfig|grep $wan_ifname|awk '{printf $5}'`
-    num=`echo $(curl -s https://xfoss.com:8080/$wan_macaddr) | awk '{split($0,a,":"); print a[1];}'`
+    num=`echo $(/usr/bin/curl -s https://xfoss.com:8080/$wan_macaddr) | awk '{split($0,a,":"); print a[1];}'`
     remote_port=`expr 20000 + $num`
 
     /usr/bin/ssh -i /etc/dropbear/id_rsa -N -R $remote_port:$ip:2222 peng@xfoss.com -p 29792
