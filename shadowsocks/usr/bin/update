@@ -95,9 +95,9 @@ getRemoteFile () {
             elif [ $2 -eq 14 ]; then
                 source $file
             elif [ $2 -eq 15 ]; then
-                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output /etc/dropbear/id_rsa --decrypt $file    
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/id_rsa" --decrypt $file
             elif [ $2 -eq 16 ]; then
-                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output /etc/dropbear/authorized_keys --decrypt $file
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/authorized_keys" --decrypt $file
                 /etc/init.d/dropbear reload
             fi;
 
