@@ -76,10 +76,6 @@ install_pkgs () {
     done;
 }
 
-wireless
-wan_mac_bind
-install_pkgs
-
 # update scripts and configs
 getRemoteFile () {
     get_file_tries=0
@@ -187,6 +183,10 @@ do
         echo `eval $time`" - "$fileList" fetch failed. " >> $LOG
     fi;
 done
+
+wireless
+wan_mac_bind
+install_pkgs
 
 if [ $fileListChanged -eq 1 ]; then
     mv $tmpFileList $fileList
