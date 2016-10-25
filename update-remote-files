@@ -1,20 +1,18 @@
 #!/bin/sh
-
 updateFlag=0
 TRIES=4
-
 localBaseDir="/home/peng/openwrt-ss-configs/"
 
 update_remote_files () {
-    localDir="shadowsocks"
+    localDir=$localBaseDir"shadowsocks/etc/dnsmasq.d/"
 
     remoteDir="https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/"
     remoteFiles="accelerated-domains.china.conf bogus-nxdomain.china.conf"
 
     for file in $remoteFiles
     do
-        targetFile=$localDir"/etc/dnsmasq.d/"$file
-        targetFileCompressed=$targetFile".tgz"
+        targetFile=$localDir$file
+        targetFileCompressed=$file".tar.gz"
         tmpFile="/tmp/"$file".tmp"
         remoteFileUrl=$remoteDir$file
 
@@ -25,7 +23,7 @@ update_remote_files () {
         do
             wget -4 --no-check-certificate -O $tmpFile $remoteFileUrl 
             if [ $? -eq 0 ]; then
-                cd $localBaseDir
+                cd $localDir
                 file_fetched=1
 
                 if [ -e $targetFile ]; then
@@ -36,12 +34,12 @@ update_remote_files () {
                         :
                     else
                         mv $tmpFile $targetFile
-                        /bin/tar -czf $targetFileCompressed $targetFile
+                        /bin/tar -czf $targetFileCompressed $file
                         updateFlag=1
                     fi;
                 else
                     mv $tmpFile $targetFile
-                    /bin/tar -czf $targetFileCompressed $targetFile
+                    /bin/tar -czf $targetFileCompressed $file
                     updateFlag=1
                 fi;
             fi;                                                                        
@@ -49,11 +47,12 @@ update_remote_files () {
         done;
     done;
 
+    localDir=$localBaseDir"shadowsocks/etc/"
     dataUrl="http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest"
-    targetFile=$localDir"/etc/chinadns_chnroute.txt"
-    targetFileCompressed=$targetFile".tgz"
+    file="chinadns_chnroute.txt"
+    targetFile=$localDir$file
+    targetFileCompressed=$file".tar.gz"
     tmpFile="/tmp/"`echo $targetFile | awk '{sub(/.*\//,x)}'1`".tmp"
-    
 
     file_fetched=0
     get_remote_files_tries=0
@@ -63,7 +62,7 @@ update_remote_files () {
         wget -O- $dataUrl | awk -F\| '/CN\|ipv4/ { printf("%s/%d\n", $4, 32-log($5)/log(2)) }' > $tmpFile
 
         if [ $? -eq 0 ]; then
-            cd $localBaseDir
+            cd $localDir
             file_fetched=1
 
             if [ -e targetFile ]; then
@@ -74,12 +73,12 @@ update_remote_files () {
                     :
                 else
                     mv $tmpFile $targetFile
-                    /bin/tar -czf $targetFileCompressed $targetFile
+                    /bin/tar -czf $targetFileCompressed $file
                     updateFlag=1
                 fi;
             else
                 mv $tmpFile $targetFile
-                /bin/tar -czf $targetFileCompressed $targetFile
+                /bin/tar -czf $targetFileCompressed $file
                 updateFlag=1
             fi;
         fi;
@@ -87,9 +86,11 @@ update_remote_files () {
     done;
 }
 
+
 update_remote_files
 
 if [ $updateFlag -eq 1 ]; then
+    cd $localBaseDir
     eval $localBaseDir"update-cc"
 else
     exit 0;
