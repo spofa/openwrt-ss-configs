@@ -42,7 +42,14 @@ wan_mac_bind () {
         until [ $occupied -eq 0 ]
         do
             NEWMAC=$(dd if=/dev/urandom bs=1024 count=1 2>/dev/null | md5sum | sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\)\(..\).*$/\1:\2:\3:\4:\5:\6/')
-            result=$(/usr/bin/curl -s https://xfoss.com:8080/$NEWMAC)
+            request_answered=0
+            until [ $request_answered=1 ]
+            do
+                result=$(/usr/bin/curl -s https://xfoss.com:8080/$NEWMAC)
+                if [ $? -eq 0 ]; then
+                    $request_answered=1
+                fi;
+            done;
             is_existed=`echo $result | awk '{split($0,a,":"); print a[2];}'`
             if [ "$is_existed" = "existed" ]; then
                 :
