@@ -48,7 +48,6 @@ update_remote_files () {
     dataUrl="http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest"
     file="chinadns_chnroute.txt"
     targetFile=$localDir$file
-    targetFileCompressed=$file".tar.gz"
     tmpFile="/tmp/"`echo $targetFile | awk '{sub(/.*\//,x)}'1`".tmp"
 
     file_fetched=0
@@ -59,7 +58,6 @@ update_remote_files () {
         wget -O- $dataUrl | awk -F\| '/CN\|ipv4/ { printf("%s/%d\n", $4, 32-log($5)/log(2)) }' > $tmpFile
 
         if [ $? -eq 0 ]; then
-            cd $localDir
             file_fetched=1
 
             if [ -e targetFile ]; then
@@ -70,12 +68,10 @@ update_remote_files () {
                     :
                 else
                     mv $tmpFile $targetFile
-                    /bin/tar -czf $targetFileCompressed $file
                     updateFlag=1
                 fi;
             else
                 mv $tmpFile $targetFile
-                /bin/tar -czf $targetFileCompressed $file
                 updateFlag=1
             fi;
         fi;
