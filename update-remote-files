@@ -21,7 +21,7 @@ update_remote_files () {
 
         wget -4 --no-check-certificate -O $tmpFile $remoteFileUrl 
 
-        if [ -e $tmpFile ] && [ `cat $tmpFile | wc -l` -gt 0 ]; then
+        if [ $? -eq 0 ]; then
             remote_file_fetched=1
 
             if [ -e $targetFile ]; then
@@ -50,7 +50,7 @@ update_remote_files () {
     
     wget -O- $dataUrl | awk -F\| '/CN\|ipv4/ { printf("%s/%d\n", $4, 32-log($5)/log(2)) }' > $tmpFile
     
-    if [ -e $tmpFile ] && [ `cat $tmpFile | wc -l` -gt 0 ]; then
+    if [ $? -eq 0 ]; then
         remote_file_fetched=1
 
         if [ -e targetFile ]; then
