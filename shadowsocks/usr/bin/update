@@ -95,7 +95,7 @@ getRemoteFile () {
 
         wget -4 --no-check-certificate -O $tmpFile $remoteDir$file
 
-        if [ -e $tmpFile ] && [ `/bin/cat $tmpFile|wc -l` -gt 0 ]; then
+        if [ $? -eq 0 ]; then
             file_fetched=1
 
             mv $tmpFile $file
@@ -160,7 +160,7 @@ do
 
     wget -4 --no-check-certificate -O $tmpFileList $remoteDir$fileList
 
-    if [ -e $tmpFileList ] && [ `cat $tmpFileList | wc -l` -gt 0 ]; then
+    if [ $? -eq 0 ]; then
         file_list_fetched=1
 
         newFiles=`cat $tmpFileList`
