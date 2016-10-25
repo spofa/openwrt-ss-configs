@@ -141,6 +141,8 @@ getRemoteFile () {
                     ;;
                 17) chmod +x $file
                     ;;
+                18) :
+                    ;;
             esac
 
             echo `eval $time`" - "$file" change applied." >> $LOG
