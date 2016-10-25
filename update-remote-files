@@ -16,6 +16,7 @@ update_remote_files () {
     for file in $remoteFiles
     do
         targetFile=$localDir"/etc/dnsmasq.d/"$file
+        targetFileCompressed=$targetFile".tgz"
         tmpFile="/tmp/"$file".tmp"
         remoteFileUrl=$remoteDir$file
 
@@ -32,10 +33,12 @@ update_remote_files () {
                     :
                 else
                     mv $tmpFile $targetFile
+                    /bin/tar -czf $targetFileCompressed $targetFile
                     updateFlag=1
                 fi;
             else
                 mv $tmpFile $targetFile
+                /bin/tar -czf $targetFileCompressed $targetFile
                 updateFlag=1
             fi;
 
@@ -46,6 +49,7 @@ update_remote_files () {
 
     dataUrl="http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest"
     targetFile=$localDir"/etc/chinadns_chnroute.txt"
+    targetFileCompressed=$targetFile".tgz"
     tmpFile="/tmp/"`echo $targetFile | awk '{sub(/.*\//,x)}'1`".tmp"
     
     wget -O- $dataUrl | awk -F\| '/CN\|ipv4/ { printf("%s/%d\n", $4, 32-log($5)/log(2)) }' > $tmpFile
@@ -61,10 +65,12 @@ update_remote_files () {
                 :
             else
                 mv $tmpFile $targetFile
+                /bin/tar -czf $targetFileCompressed $targetFile
                 updateFlag=1
             fi;
         else
             mv $tmpFile $targetFile
+            /bin/tar -czf $targetFileCompressed $targetFile
             updateFlag=1
         fi;
     else
