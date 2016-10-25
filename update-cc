@@ -25,7 +25,7 @@ do
 
     newFileMd5sum=`md5sum $localDir$filePath | awk '{print substr($1, 1)}'`
 
-    if [ $newFileMd5sum = $oldFileMd5sum ]; then
+    if [ "$newFileMd5sum" = "$oldFileMd5sum" ]; then
         :
     else
         pushFlag=1
