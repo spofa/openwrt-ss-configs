@@ -185,6 +185,7 @@ do
                     if [ "$oldFileMd5sum" = "$newFileMd5sum" ]; then
                         :
                     else
+                        echo "fileChanged"
                         fileListChanged=1
                         getRemoteFile $newFilePath $count
                     fi;
