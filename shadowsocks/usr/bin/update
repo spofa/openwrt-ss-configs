@@ -139,6 +139,8 @@ getRemoteFile () {
                 16) echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/authorized_keys" --decrypt $file
                     /etc/init.d/dropbear reload
                     ;;
+                17) chmod +x $file
+                    ;;
             esac
 
             echo `eval $time`" - "$file" change applied." >> $LOG
