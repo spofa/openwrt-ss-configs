@@ -98,11 +98,9 @@ getRemoteFile () {
         if [ -e $tmpFile ] && [ `/bin/cat $tmpFile|wc -l` -gt 0 ]; then
             file_fetched=1
 
-            file_num=$(2)
-
             mv $tmpFile $file
 
-            case $(file_num) in
+            case $2 in
                 0) dnsmasqReload=1
                     ;;
                 1) dnsmasqReload=1
