@@ -1,16 +1,13 @@
 #!/bin/sh
 
 updateFlag=0
-get_remote_files_tries=0
 TRIES=4
-remote_file_fetched=0
 
 update_remote_files () {
     localBaseDir="/home/peng/openwrt-ss-configs/"
     localDir=$localBaseDir"shadowsocks"
 
     remoteDir="https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/"
-
     remoteFiles="accelerated-domains.china.conf bogus-nxdomain.china.conf"
 
     for file in $remoteFiles
@@ -20,12 +17,53 @@ update_remote_files () {
         tmpFile="/tmp/"$file".tmp"
         remoteFileUrl=$remoteDir$file
 
-        wget -4 --no-check-certificate -O $tmpFile $remoteFileUrl 
+        file_fetched=0
+        get_remote_files_tries=0
+
+        until [ $file_fetched -eq 1 ] || [ $get_remote_files_tries -gt $TRIES ]
+        do
+            wget -4 --no-check-certificate -O $tmpFile $remoteFileUrl 
+            if [ $? -eq 0 ]; then
+                file_fetched=1
+
+                if [ -e $targetFile ]; then
+                    oldMd5sum=`md5sum $targetFile | awk '{print substr($1,1)}'`
+                    newMd5sum=`md5sum $tmpFile | awk '{print substr($1,1)}'`
+
+                    if [ $newMd5sum = $oldMd5sum ]; then
+                        :
+                    else
+                        mv $tmpFile $targetFile
+                        /bin/tar -czf $targetFileCompressed $targetFile
+                        updateFlag=1
+                    fi;
+                else
+                    mv $tmpFile $targetFile
+                    /bin/tar -czf $targetFileCompressed $targetFile
+                    updateFlag=1
+                fi;
+            fi;                                                                        
+            get_remote_files_tries=$((get_remote_files_tries+1))
+        done;
+    done;
+
+    dataUrl="http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest"
+    targetFile=$localDir"/etc/chinadns_chnroute.txt"
+    targetFileCompressed=$targetFile".tgz"
+    tmpFile="/tmp/"`echo $targetFile | awk '{sub(/.*\//,x)}'1`".tmp"
+    
+
+    file_fetched=0
+    get_remote_files_tries=0
+
+    until [ $file_fetched -eq 1 ] || [ $get_remote_files_tries -gt $TRIES ]
+    do 
+        wget -O- $dataUrl | awk -F\| '/CN\|ipv4/ { printf("%s/%d\n", $4, 32-log($5)/log(2)) }' > $tmpFile
 
         if [ $? -eq 0 ]; then
-            remote_file_fetched=1
+            file_fetched=1
 
-            if [ -e $targetFile ]; then
+            if [ -e targetFile ]; then
                 oldMd5sum=`md5sum $targetFile | awk '{print substr($1,1)}'`
                 newMd5sum=`md5sum $tmpFile | awk '{print substr($1,1)}'`
 
@@ -41,48 +79,12 @@ update_remote_files () {
                 /bin/tar -czf $targetFileCompressed $targetFile
                 updateFlag=1
             fi;
-
-        else                                                                                    
-            remote_file_fetched=0
-        fi;                                                                        
-    done;
-
-    dataUrl="http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest"
-    targetFile=$localDir"/etc/chinadns_chnroute.txt"
-    targetFileCompressed=$targetFile".tgz"
-    tmpFile="/tmp/"`echo $targetFile | awk '{sub(/.*\//,x)}'1`".tmp"
-    
-    wget -O- $dataUrl | awk -F\| '/CN\|ipv4/ { printf("%s/%d\n", $4, 32-log($5)/log(2)) }' > $tmpFile
-    
-    if [ $? -eq 0 ]; then
-        remote_file_fetched=1
-
-        if [ -e targetFile ]; then
-            oldMd5sum=`md5sum $targetFile | awk '{print substr($1,1)}'`
-            newMd5sum=`md5sum $tmpFile | awk '{print substr($1,1)}'`
-
-            if [ $newMd5sum = $oldMd5sum ]; then
-                :
-            else
-                mv $tmpFile $targetFile
-                /bin/tar -czf $targetFileCompressed $targetFile
-                updateFlag=1
-            fi;
-        else
-            mv $tmpFile $targetFile
-            /bin/tar -czf $targetFileCompressed $targetFile
-            updateFlag=1
         fi;
-    else
-        remote_file_fetched=0
-    fi;
+        get_remote_files_tries=$((get_remote_files_tries+1))
+    done;
 }
 
-until [ $remote_file_fetched -eq 1 ] || [ $get_remote_files_tries -gt $TRIES ]
-do
-    update_remote_files
-    get_remote_files_tries=$((get_remote_files_tries+1))
-done;
+update_remote_files
 
 if [ $updateFlag -eq 1 ]; then
     eval $localBaseDir"update-cc"
