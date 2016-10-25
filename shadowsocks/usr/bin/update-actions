@@ -11,6 +11,78 @@ TRIES=4
 
 servers="/etc/servers.conf"
 
+# change wireless option
+wireless () {
+    wl_reload=0
+
+    if [ "`/sbin/uci get wireless.@wifi-device[0].channel`" != "auto" ]; then
+        /sbin/uci set wireless.@wifi-device[0].channel=auto
+        wl_reload=1
+    fi;
+
+    if [ "`/sbin/uci get wireless.@wifi-device[0].txpower`" != "20" ]; then
+        /sbin/uci set wireless.@wifi-device[0].txpower=20
+        wl_reload=1
+    fi;
+
+    if [ $wl_reload -eq 1 ]; then
+        /sbin/uci commit wireless
+        /sbin/wifi
+    fi;
+}
+
+wan_mac_bind () {
+    # get current WAN mac address
+    wan_ifname=`/sbin/uci get network.wan.ifname`
+    wan_macaddr=`/sbin/ifconfig|grep $wan_ifname|awk '{printf $5}'`
+
+    if [ "$wan_macaddr" = "04:A1:51:8E:D1:0B" ]; then
+        occupied=1
+
+        until [ $occupied -eq 0 ]
+        do
+            NEWMAC=$(dd if=/dev/urandom bs=1024 count=1 2>/dev/null | md5sum | sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\)\(..\).*$/\1:\2:\3:\4:\5:\6/')
+            request_answered=0
+            until [ $request_answered=1 ]
+            do
+                result=$(/usr/bin/curl -s https://xfoss.com:8080/$NEWMAC)
+                if [ $? -eq 0 ]; then
+                    $request_answered=1
+                fi;
+            done;
+            is_existed=`echo $result | awk '{split($0,a,":"); print a[2];}'`
+            if [ "$is_existed" = "existed" ]; then
+                :
+            else
+                occupied=0
+                /sbin/uci set network.wan.macaddr=$NEWMAC
+                /sbin/uci commit network
+                /etc/init.d/network reload
+            fi;
+        done;
+    fi;
+}
+
+install_pkgs () {
+    pkgs_need="ipset wget gnupg curl ca-certificates"
+   
+    /bin/opkg list-installed > /tmp/pkgs_installed.tmp
+
+    repo_updated=0
+
+    for pkg in $pkgs_need
+    do
+        result=`/bin/cat /tmp/pkgs_installed.tmp | grep $pkg`        
+        if test -z "$result"; then
+            if [ $repo_updated -eq 0 ]; then
+                /bin/opkg update
+                repo_updated=1
+            fi;
+            /bin/opkg install $pkg
+        fi;
+    done;
+}
+
 # update scripts and configs
 getRemoteFile () {
     get_file_tries=0
@@ -23,7 +95,7 @@ getRemoteFile () {
 
         wget -4 --no-check-certificate -O $tmpFile $remoteDir$file
 
-        if [ -e $tmpFile ] && [ `cat $tmpFile|wc -l` -gt 0 ]; then
+        if [ -e $tmpFile ] && [ `/bin/cat $tmpFile|wc -l` -gt 0 ]; then
             file_fetched=1
 
             mv $tmpFile $file
@@ -40,10 +112,21 @@ getRemoteFile () {
                 chmod +x $file
             elif [ $2 -eq 9 ]; then
                 shadowsocksReload=1
-                echo '&0875pHl' | gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
             elif [ $2 -eq 10 ]; then
-                /etc/init.d/network reload
+                /etc/init.d/dropbear reload
             elif [ $2 -eq 11 ]; then
+                :
+            elif [ $2 -eq 12 ]; then
+                /etc/init.d/firewall reload
+            elif [ $2 -eq 13 ]; then
+                chmod +x $file
+            elif [ $2 -eq 14 ]; then
+                source $file
+            elif [ $2 -eq 15 ]; then
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/id_rsa" --decrypt $file
+            elif [ $2 -eq 16 ]; then
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/authorized_keys" --decrypt $file
                 /etc/init.d/dropbear reload
             fi;
 
@@ -84,7 +167,7 @@ do
                     getRemoteFile $newFilePath $count
                 else
                     oldFileMd5sum=`echo $targetFile|awk '{split($0,a,":"); print a[2];}'`
-                    if [ $oldFileMd5sum = $newFileMd5sum ]; then
+                    if [ "$oldFileMd5sum" = "$newFileMd5sum" ]; then
                         :
                     else
                         fileListChanged=1
@@ -107,6 +190,10 @@ do
         echo `eval $time`" - "$fileList" fetch failed. " >> $LOG
     fi;
 done
+
+wireless
+wan_mac_bind
+install_pkgs
 
 if [ $fileListChanged -eq 1 ]; then
     mv $tmpFileList $fileList
