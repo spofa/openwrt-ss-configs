@@ -8,6 +8,7 @@ dnsmasqReload=0
 shadowsocksReload=0
 fileListChanged=0
 TRIES=4
+currentDir=$PWD
 
 servers="/etc/servers.conf"
 
@@ -103,9 +104,16 @@ getRemoteFile () {
             case $2 in
                 0) dnsmasqReload=1
                     ;;
-                1) dnsmasqReload=1
+                1) cd "/etc/dnsmasq.d/"
+                    filename=`echo $file | awk '{sub(/.*\//,x)}'1`
+                    tar -xzf $filename
+                    cd $currentDir
+                    dnsmasqReload=1
                     ;;
-                2) dnsmasqReload=1
+                2) cd "/etc/dnsmasq.d/"
+                    filename=`echo $file | awk '{sub(/.*\//,x)}'1`
+                    tar -xzf $filename
+                    cd $currentDirdnsmasqReload=1
                     ;;
                 3) dnsmasqReload=1
                     ;;
@@ -117,7 +125,11 @@ getRemoteFile () {
                 6) chmod +x $file
                     shadowsocksReload=1
                     ;;
-                7) shadowsocksReload=1
+                7) cd "/etc/"
+                    filename=`echo $file | awk '{sub(/.*\//,x)}'1`
+                    tar -xzf $filename
+                    cd $currentDir
+                    shadowsocksReload=1
                     ;;
                 8) chmod +x $file
                     ;;
