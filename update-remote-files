@@ -83,7 +83,6 @@ update_remote_files () {
 update_remote_files
 
 if [ $updateFlag -eq 1 ]; then
-    cd $localBaseDir
     eval $localBaseDir"update-cc"
 else
     exit 0;
