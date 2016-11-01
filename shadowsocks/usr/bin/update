@@ -45,7 +45,7 @@ update_ss () {
         count=0
         fetch_success=0
 
-        util [ $fetch_success -eq 1 ] || [ $count -gt 4 ]
+        until [ $fetch_success -eq 1 ] || [ $count -gt 4 ]
         do
             wget -4 --no-check-certificate -O $tmpSS $ss_URL
 
