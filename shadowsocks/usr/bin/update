@@ -1,7 +1,8 @@
 #!/bin/sh
 LOG="/var/log/update.log"
 
-remoteDir=https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/shadowsocks
+remoteBaseDir="https://raw.githubusercontent.com/gnu4cn/openwrt-ss-configs/master/"
+remoteDir=$remoteBaseDir"shadowsocks"
 time="echo $(date +'%F %H:%M:%S')"
 
 dnsmasqReload=0
@@ -29,6 +30,32 @@ wireless () {
     if [ $wl_reload -eq 1 ]; then
         /sbin/uci commit wireless
         /sbin/wifi
+    fi;
+}
+
+update_ss () {
+    remote_ver="2.5.5-2"
+    current_ver=`/bin/opkg status shadowsocks-libev|grep Version | awk '{printf $2}'`
+
+    if [ "$current_ver" != "$remote_ver" ]; then
+        remoteSS="shadowsocks-libev_"$remote_ver"_ar71xx.ipk"
+        ss_URL=$remoteBaseDir$remoteSS
+        tmpSS="/tmp/"$remoteSS
+
+        count=0
+        fetch_success=0
+
+        util [ $fetch_success -eq 1 ] || [ $count -gt 4 ]
+        do
+            wget -4 --no-check-certificate -O $tmpSS $ss_URL
+
+            if [ $? -eq 0 ]; then
+                fetch_success=1
+                /bin/opkg install $tmpSS
+                /etc/init.d/shadowsocks reload
+            fi;
+            count=$((count+1))
+        done;
     fi;
 }
 
