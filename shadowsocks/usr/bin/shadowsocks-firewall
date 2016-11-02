@@ -12,8 +12,12 @@ iptables -t nat -N SHADOWSOCKS_WHITELIST
 SERVERS=`cat /etc/servers.conf`
 for server in $SERVERS;
 do 
+    old_add=""
     addr=`echo $server|awk '{split($0,a,":"); print a[1];}'`;
-    iptables -t nat -A SHADOWSOCKS -d $addr -j RETURN
+    if [ "$old_add" != "$addr" ]; then
+        iptables -t nat -A SHADOWSOCKS -d $addr -j RETURN
+        old_add="$addr"
+    fi;
 done
 
 #for hulu.com
