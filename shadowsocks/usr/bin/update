@@ -52,6 +52,7 @@ update_ss () {
             if [ $? -eq 0 ]; then
                 fetch_success=1
                 /bin/opkg install $tmpSS
+                shadowsocksReload=0
                 /etc/init.d/shadowsocks reload
             fi;
             count=$((count+1))
