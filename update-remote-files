@@ -49,7 +49,7 @@ update_dnsmasq_conf_files () {
 
         if [ $dnsmasq_conf_changed -eq 1 ]; then
             cd $etc_dir
-            /bin/tar cfj dnsmasq.d.tar.bz2 $config_dir
+            /bin/tar cfz dnsmasq.d.tar.gz $config_dir
             cd $localBaseDir
         fi;
 
@@ -95,7 +95,7 @@ update_chinadns_chnrout () {
 
     if [ $chinadns_chnroute_changed -eq 1 ]; then
         cd $etc_dir
-        tar cfj chinadns_chnroute.txt.tar.bz2 $file
+        tar cfz chinadns_chnroute.txt.tar.gz $file
         cd $localBaseDir
     fi;
 }
