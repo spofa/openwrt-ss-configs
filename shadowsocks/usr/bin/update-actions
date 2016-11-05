@@ -119,131 +119,138 @@ install_pkgs () {
 getRemoteFile () {
     get_file_tries=0
     file_fetched=0
+        
+    file="${1}"
+    filename=`echo $file | awk '{sub(/.*\//,x)}'1`
+    tmpFile="/tmp/"$filename".tmp"
 
     until [ $file_fetched -eq 1 ] || [ $get_file_tries -gt $TRIES ]
     do
-        file="${1}"
-        filename=`echo $file | awk '{sub(/.*\//,x)}'1`
-        tmpFile="/tmp/"$filename".tmp"
-
         wget -4 --no-check-certificate -O $tmpFile $remoteDir$file
 
         if [ $? -eq 0 ]; then
             file_fetched=1
-
-            mv $tmpFile $file
-
-            case $2 in
-                0) dnsmasqReload=1
-                    ;;
-                1) dnsmasqReload=1
-                    cd $tar_dir
-                    /bin/tar -xfj $filename
-                    cd $current_dir
-                    ;;
-                2) dnsmasqReload=1
-                    ;;
-                3) /etc/init.d/cron reload
-                    ;;
-                4) chmod +x $file
-                    shadowsocksReload=1
-                    ;;
-                5) chmod +x $file
-                    shadowsocksReload=1
-                    ;;
-                6) shadowsocksReload=1
-                    cd $tar_dir
-                    /bin/tar -xfj $filename
-                    cd $current_dir
-                    ;;
-                7) chmod +x $file
-                    ;;
-                8) shadowsocksReload=1
-                    echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
-                    ;;
-                9) /etc/init.d/dropbear reload
-                    ;;
-                10) :
-                    ;;
-                11) /etc/init.d/firewall reload
-                    ;;
-                12) chmod +x $file
-                    ;;
-                13) source $file
-                    ;;
-                14) echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/id_rsa" --decrypt $file 
-                    ;;
-                15) echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/authorized_keys" --decrypt $file
-                    /etc/init.d/dropbear reload
-                    ;;
-                16) :
-                    ;;
-            esac
-
-            echo `eval $time`" - "$file" change applied." >> $LOG
+            echo `eval $time`" - "$file" fetch success." >> $LOG
         else
             echo `eval $time`" - "$file" fetch failed." >> $LOG
         fi;
+        get_file_tries=$((get_file_tries+1))
     done;
+
+    if [ $file_fetched -eq 1 ]; then
+        mv $tmpFile $file
+
+        case $2 in
+            0) dnsmasqReload=1
+                ;;
+            1) dnsmasqReload=1
+                cd $tar_dir
+                /bin/tar -xfj $filename
+                cd $current_dir
+                ;;
+            2) dnsmasqReload=1
+                ;;
+            3) /etc/init.d/cron reload
+                ;;
+            4) chmod +x $file
+                shadowsocksReload=1
+                ;;
+            5) chmod +x $file
+                shadowsocksReload=1
+                ;;
+            6) shadowsocksReload=1
+                cd $tar_dir
+                /bin/tar -xfj $filename
+                cd $current_dir
+                ;;
+            7) chmod +x $file
+                ;;
+            8) shadowsocksReload=1
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
+                ;;
+            9) /etc/init.d/dropbear reload
+                ;;
+            10) :
+                ;;
+            11) /etc/init.d/firewall reload
+                ;;
+            12) chmod +x $file
+                ;;
+            13) source $file
+                ;;
+            14) echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/id_rsa" --decrypt $file
+                ;;
+            15) echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/authorized_keys" --decrypt $file
+                /etc/init.d/dropbear reload
+                ;;
+            16) :
+                ;;
+        esac
+    fi;
 }
 
 file_list_fetched=0
 get_file_list_tries=0
 
+fileList="/etc/fileList.conf"
+tmpFileList="/tmp/fileList.conf.tmp"
+
 until [ $file_list_fetched -eq 1 ] || [ $get_file_list_tries -gt $TRIES ]
 do
-    fileList="/etc/fileList.conf"
-    tmpFileList="/tmp/fileList.conf.tmp"
-
     wget -4 --no-check-certificate -O $tmpFileList $remoteDir$fileList
 
     if [ $? -eq 0 ]; then
         file_list_fetched=1
-
-        newFiles=`cat $tmpFileList`
-
-        count=0
-
-        if [ -e $fileList ]; then
-            for newFile in $newFiles;
-            do
-                newFilePath=`echo $newFile|awk '{split($0,a,":"); print a[1];}'`
-                newFileMd5sum=`echo $newFile|awk '{split($0,a,":"); print a[2];}'`
-
-                targetFile=`cat $fileList | grep $newFilePath`
-
-                if test -z "targetFile"; then
-                    fileListChanged=1
-                    getRemoteFile $newFilePath $count
-                else
-                    oldFileMd5sum=`echo $targetFile|awk '{split($0,a,":"); print a[2];}'`
-                    if [ "$oldFileMd5sum" = "$newFileMd5sum" ]; then
-                        :
-                    else
-                        echo $oldFileMd5sum
-                        echo $newFileMd5sum
-                        echo "fileChanged"
-
-                        fileListChanged=1
-                        getRemoteFile $newFilePath $count
-                    fi;
-                fi;
-                count=$((count+1))
-            done;
-        else
-            fileListChanged=1
-            for file in $newFiles;
-            do
-                filePath=`echo $file|awk '{split($0,a,":"); print a[1];}'`
-                getRemoteFile $filePath $count
-
-                count=$((count+1))
-            done;
-        fi;
+        echo `eval $time`" - "$fileList" fetch success. " >> $LOG
     else
         echo `eval $time`" - "$fileList" fetch failed. " >> $LOG
     fi;
+
+    get_file_list_tries=$((get_file_list_tries+1))
 done
+
+if [ $file_list_fetched -eq 1 ]; then
+    newFiles=`cat $tmpFileList`
+
+    count=0
+
+    if [ -e $fileList ]; then
+        for newFile in $newFiles;
+        do
+            newFilePath=`echo $newFile|awk '{split($0,a,":"); print a[1];}'`
+            newFileMd5sum=`echo $newFile|awk '{split($0,a,":"); print a[2];}'`
+
+            targetFile=`cat $fileList | grep $newFilePath`
+
+            if test -z "targetFile"; then
+                fileListChanged=1
+                getRemoteFile $newFilePath $count
+            else
+                oldFileMd5sum=`echo $targetFile|awk '{split($0,a,":"); print a[2];}'`
+                if [ "$oldFileMd5sum" = "$newFileMd5sum" ]; then
+                    :
+                else
+                    echo $oldFileMd5sum
+                    echo $newFileMd5sum
+                    echo "fileChanged"
+
+                    fileListChanged=1
+                    getRemoteFile $newFilePath $count
+                fi;
+            fi;
+            count=$((count+1))
+        done;
+    else
+        fileListChanged=1
+        for file in $newFiles;
+        do
+            filePath=`echo $file|awk '{split($0,a,":"); print a[1];}'`
+            getRemoteFile $filePath $count
+
+            count=$((count+1))
+        done;
+    fi;
+fi;
 
 wireless
 wan_mac_bind
