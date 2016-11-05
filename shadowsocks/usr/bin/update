@@ -25,5 +25,6 @@ if [ $get_update_actions_success -eq 1 ]; then
 
     if [ "$new_md5sum" != "$old_md5sum" ]; then
         mv $tmp_update_actions $local_update_actions
+        /bin/chmod +x $local_update_actions
     fi;
 fi;
