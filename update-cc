@@ -36,6 +36,4 @@ do
 
 done;
 
-if [ $pushFlag -eq 1 ]; then
-    push
-fi;
+push

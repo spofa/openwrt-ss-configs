@@ -145,7 +145,7 @@ getRemoteFile () {
                 ;;
             1) dnsmasqReload=1
                 cd $tar_dir
-                /bin/tar -xfj $filename
+                /bin/tar xfj $filename
                 cd $current_dir
                 ;;
             2) dnsmasqReload=1
@@ -160,7 +160,7 @@ getRemoteFile () {
                 ;;
             6) shadowsocksReload=1
                 cd $tar_dir
-                /bin/tar -xfj $filename
+                /bin/tar xfj $filename
                 cd $current_dir
                 ;;
             7) chmod +x $file
