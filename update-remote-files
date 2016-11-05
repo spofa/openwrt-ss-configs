@@ -1,10 +1,12 @@
 #!/bin/sh
 updateFlag=0
 TRIES=4
-localBaseDir="/home/peng/openwrt-ss-configs/"
+localBaseDir=`echo $PWD`"/"
+etc_dir=$localBaseDir"shadowsocks/etc/"
 
-update_remote_files () {
-    localDir=$localBaseDir"shadowsocks/etc/dnsmasq.d/"
+update_dnsmasq_conf_files () {
+    dnsmasq_conf_changed=0
+    localDir=$etc_dir"dnsmasq.d/"
 
     remoteDir="https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/"
     remoteFiles="accelerated-domains.china.conf bogus-nxdomain.china.conf"
@@ -12,7 +14,6 @@ update_remote_files () {
     for file in $remoteFiles
     do
         targetFile=$localDir$file
-        targetFileCompressed=$file".tar.gz"
         tmpFile="/tmp/"$file".tmp"
         remoteFileUrl=$remoteDir$file
 
@@ -34,24 +35,35 @@ update_remote_files () {
                     else
                         mv $tmpFile $targetFile
                         updateFlag=1
+                        dnsmasq_conf_changed=1
                     fi;
                 else
                     mv $tmpFile $targetFile
                     updateFlag=1
+                    dnsmasq_conf_changed=1
                 fi;
             fi;                                                                        
             get_remote_files_tries=$((get_remote_files_tries+1))
         done;
-    done;
 
-    localDir=$localBaseDir"shadowsocks/etc/"
-    dataUrl="http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest"
+        if [ $dnsmasq_conf_changed -eq 1 ]; then
+            cd $etc_dir
+            /bin/tar cfj dnsmasq.d.tar.bz2 $config_dir 
+            cd $localBaseDir
+        fi;
+
+    done;
+}
+
+update_chinadns_chnrout () {
     file="chinadns_chnroute.txt"
-    targetFile=$localDir$file
-    tmpFile="/tmp/"`echo $targetFile | awk '{sub(/.*\//,x)}'1`".tmp"
+    targetFile=$etc_dir$file
+    dataUrl="http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest"
+    tmpFile="/tmp/"$file".tmp"
 
     file_fetched=0
     get_remote_files_tries=0
+    chinadns_chnroute_changed=0
 
     until [ $file_fetched -eq 1 ] || [ $get_remote_files_tries -gt $TRIES ]
     do 
@@ -69,22 +81,30 @@ update_remote_files () {
                 else
                     mv $tmpFile $targetFile
                     updateFlag=1
+                    chinadns_chnroute_changed=1
                 fi;
             else
                 mv $tmpFile $targetFile
                 updateFlag=1
+                chinadns_chnroute_changed=1
             fi;
         fi;
         get_remote_files_tries=$((get_remote_files_tries+1))
     done;
+
+    if [ $chinadns_chnroute_changed -eq 1 ]; then
+        cd $etc_dir
+        tar cfj chinadns_chnroute.txt.tar.bz2 $file
+        cd $localBaseDir
+    fi;
 }
 
 
-update_remote_files
+update_dnsmasq_conf_files
+update_chinadns_chnrout
 
 if [ $updateFlag -eq 1 ]; then
     eval $localBaseDir"update-cc"
 else
     exit 0;
 fi;
-
