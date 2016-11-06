@@ -279,6 +279,7 @@ wireless
 wan_mac_bind
 install_pkgs
 update_ss
+set_tz
 
 if [ $fileListChanged -eq 1 ]; then
     mv $tmpFileList $fileList
