@@ -1,4 +1,6 @@
 #!/bin/sh
+TRIES=4
+
 createTunnel() {
     # get WAN IP address
     . /lib/functions/network.sh --source-only
@@ -7,9 +9,11 @@ createTunnel() {
     # get unified remote port number
     wan_ifname=`/sbin/uci get network.wan.ifname`
     wan_macaddr=`/sbin/ifconfig|grep $wan_ifname|awk '{printf $5}'`
-    fetched=0
 
-    until [ $fetched -eq 1 ]
+    fetched=0
+    fetching_tries=0
+
+    until [ $fetched -eq 1 ] || [ $fetching_tries -gt $TRIES ]
     do
         result=`/usr/bin/curl -s https://xfoss.com:8080/$wan_macaddr`
         if [ $? -eq 0 ]; then
@@ -20,12 +24,19 @@ createTunnel() {
     num=`echo "$result" | awk '{split($0,a,":"); print a[1];}'`
     remote_port=`expr 20000 + $num`
 
-    /usr/bin/ssh -i /etc/dropbear/id_rsa -N -R $remote_port:$ip:2222 peng@xfoss.com -p 29792
-    if [ $? -eq 0 ]; then
-        echo "Tunnel to jumpbox created successfully"
-    else
-        echo "An error occurred creating a tunnel to jumpbox. RC was $?"
-    fi
+    established=0
+    establishing_tries=0
+
+    until [ $established -eq 1 ] || [ $establishing_tries -gt $TRIES ]
+    do
+        /usr/bin/ssh -i /etc/dropbear/id_rsa -N -R $remote_port:$ip:2222 peng@xfoss.com -p 29792
+        if [ $? -eq 0 ]; then
+            established=1
+            echo "Tunnel to jumpbox created successfully"
+        else
+            echo "An error occurred creating a tunnel to jumpbox. RC was $?"
+        fi
+    done;
 }
 
 /bin/pidof ssh
