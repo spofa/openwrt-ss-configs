@@ -38,7 +38,7 @@ set_tz () {
 }
 
 # change wireless option
-wireless () {
+set_wireless () {
     wl_reload=0
 
     if [ "`/sbin/uci get wireless.@wifi-device[0].channel`" != "auto" ]; then
@@ -275,7 +275,7 @@ if [ $file_list_fetched -eq 1 ]; then
     fi;
 fi;
 
-wireless
+set_wireless
 wan_mac_bind
 install_pkgs
 update_ss
