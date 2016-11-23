@@ -2,8 +2,6 @@
 localDir=$HOME"/openwrt-ss-configs/shadowsocks"
 servers=$HOME"/creds/servers.conf"
 
-pushFlag=0
-
 push () {
     git add ./*
     git add shadowsocks/etc/*
@@ -28,7 +26,6 @@ do
     if [ "$newFileMd5sum" = "$oldFileMd5sum" ]; then
         :
     else
-        pushFlag=1
         sed -i 's/'$oldFileMd5sum'/'$newFileMd5sum'/' $localDir$fileList
     fi;
 
