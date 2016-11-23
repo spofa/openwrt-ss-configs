@@ -1,6 +1,6 @@
 #!/bin/sh
-localDir="/home/peng/openwrt-ss-configs/shadowsocks"
-servers="/home/peng/creds/servers.conf"
+localDir=$HOME"/openwrt-ss-configs/shadowsocks"
+servers=$HOME"/creds/servers.conf"
 
 pushFlag=0
 

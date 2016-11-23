@@ -1,7 +1,7 @@
 #!/bin/sh
-servers="/home/peng/creds/servers.conf"
-encryptedServers="/home/peng/openwrt-ss-configs/shadowsocks/etc/servers.en.txt"
-update_cc="/home/peng/openwrt-ss-configs/update-cc"
+servers=$HOME"/creds/servers.conf"
+encryptedServers=$HOME"/openwrt-ss-configs/shadowsocks/etc/servers.en.txt"
+update_cc=$HOME"/openwrt-ss-configs/update-cc"
 
 gpg --batch --yes --recipient unisko@gmail.com --output $encryptedServers --encrypt $servers
 
