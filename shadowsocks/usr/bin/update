@@ -28,6 +28,7 @@ if [ $get_update_actions_success -eq 1 ]; then
     old_md5sum=`/usr/bin/md5sum $local_update_actions | awk '{print substr($1,1)}'`
 
     if [ "$new_md5sum" != "$old_md5sum" ]; then
+        echo "File update-actions changed, now apply the changes."
         mv $tmp_update_actions $local_update_actions
         /bin/chmod +x $local_update_actions
     fi;
