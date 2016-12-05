@@ -52,7 +52,7 @@ set_wireless () {
     fi;
 
     if [ "`/sbin/uci get wireless.@wifi-device[0].txpower`" != "18" ]; then
-        /sbin/uci set wireless.@wifi-device[0].txpower=18
+        /sbin/uci set wireless.@wifi-device[0].txpower=14
         wl_reload=1
     fi;
 
