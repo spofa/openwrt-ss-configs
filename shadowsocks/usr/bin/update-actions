@@ -41,13 +41,18 @@ set_tz () {
 set_wireless () {
     wl_reload=0
 
-    if [ "`/sbin/uci get wireless.@wifi-device[0].channel`" != "auto" ]; then
-        /sbin/uci set wireless.@wifi-device[0].channel=auto
+    if [ "`/sbin/uci get wireless.@wifi-device[0].country`" != "AU" ]; then
+        /sbin/uci set wireless.@wifi-device[0].country=AU
+        wl_reload=1
+    fi;
+   
+    if [ "`/sbin/uci get wireless.@wifi-device[0].channel`" != "13" ]; then
+        /sbin/uci set wireless.@wifi-device[0].channel=13
         wl_reload=1
     fi;
 
-    if [ "`/sbin/uci get wireless.@wifi-device[0].txpower`" != "29" ]; then
-        /sbin/uci set wireless.@wifi-device[0].txpower=27
+    if [ "`/sbin/uci get wireless.@wifi-device[0].txpower`" != "18" ]; then
+        /sbin/uci set wireless.@wifi-device[0].txpower=18
         wl_reload=1
     fi;
 
