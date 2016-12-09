@@ -4,6 +4,8 @@
 # Date:		2015-12-23
 
 #create a new chain named SHADOWSOCKS
+sleep 5
+
 iptables -t nat -N SHADOWSOCKS
 iptables -t nat -N SHADOWSOCKS_WHITELIST
 
@@ -20,6 +22,8 @@ do
     fi;
 done
 
+sleep 5
+
 #for hulu.com
 iptables -t nat -A SHADOWSOCKS -p tcp --dport 1935 -j REDIRECT --to-ports 7654
 iptables -t nat -A SHADOWSOCKS -p udp --dport 1935 -j REDIRECT --to-ports 7654
@@ -33,6 +37,8 @@ iptables -t nat -A SHADOWSOCKS -d 172.16.0.0/12 -j RETURN
 iptables -t nat -A SHADOWSOCKS -d 192.168.0.0/16 -j RETURN
 iptables -t nat -A SHADOWSOCKS -d 224.0.0.0/4 -j RETURN
 iptables -t nat -A SHADOWSOCKS -d 240.0.0.0/4 -j RETURN
+
+sleep 1
 
 # Check whitelist
 iptables -t nat -A SHADOWSOCKS -j SHADOWSOCKS_WHITELIST
