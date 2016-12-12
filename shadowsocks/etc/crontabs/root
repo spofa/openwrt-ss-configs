@@ -1,5 +1,5 @@
 # m h  dom mon dow   command
 45 * * * * /usr/bin/tunnel_keepalive >> /var/log/tunnel.log 2>&1
-*/30 * * * * /usr/bin/ss-reload
+0 * * * * /usr/bin/ss-reload
 15 3 * * * /usr/bin/update
 15 4 * * * /usr/bin/update-actions
