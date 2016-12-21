@@ -27,12 +27,10 @@ start() {
         port=`echo $server|awk '{split($0,a,":"); print a[2];}'`;
         cred=`echo $server|awk '{split($0,a,":"); print a[3];}'`;
 
-        redir_paras="-u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.${count}.pid"
-        service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" "${redir_paras}"
+        service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.${count}.pid
 
         if [ $count_tun -lt $SERVERS_FOR_DNS ] && [ `expr $n % 2` -eq 1 ]; then
-            tun_paras="-b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -u -f /var/run/ss-tunnel.${count_tun}.pid"
-            service_start /usr/bin/ss-tunnel -s "${addr}" -p "${port}" -k "${cred}" "${tun_paras}"
+            service_start /usr/bin/ss-tunnel -s "${addr}" -p "${port}" -k "${cred}" -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -u -f /var/run/ss-tunnel.${count_tun}.pid
             count_tun=$((count_tun+1))
         fi;
 
