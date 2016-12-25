@@ -3,4 +3,3 @@
 0 * * * * /usr/bin/ss-reload
 15 3 * * * /usr/bin/update
 15 4 * * * /usr/bin/update-actions
-15 2 * * * /etc/init.d/shadowsocks reload
