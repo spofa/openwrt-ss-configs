@@ -13,7 +13,7 @@ push () {
 }
 
 fileList="/etc/fileList.conf"
-files=`cat $localDir$fileList`
+files=`cat ${localDir}${fileList}`
 
 count=0
 for file in $files;
