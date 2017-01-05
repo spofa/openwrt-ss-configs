@@ -25,6 +25,10 @@ start() {
         rm "${servers_tmp}"
     fi;
 
+    if [ -e "${servers_random}" ]; then
+        rm "${servers_random}"
+    fi;
+
     for s in $servers;
     do
         printf "%05d %s\n" "`tr -cd 1-9 < /dev/urandom | head -c 5`" "${s}" >> "${servers_tmp}"
@@ -34,7 +38,9 @@ start() {
 
     rm "${servers_tmp}"
 
-    for server in $servers_random
+    serverList=`cat "${servers_random}"`
+
+    for server in $serverList
     do
     	n=`tr -cd 0-9 < /dev/urandom | head -c 1`
 
