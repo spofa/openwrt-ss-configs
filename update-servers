@@ -1,5 +1,9 @@
 #!/bin/sh
+servers_readable=$HOME"/creds/servers.conf.readable"
 servers=$HOME"/creds/servers.conf"
+
+cat "${servers_readable}" | while IFS= read -r f; do printf "%05d %s\n" "$RANDOM" "$f"; done | sort -n | cut -c7- > "${servers}"
+
 encryptedServers=$HOME"/openwrt-ss-configs/shadowsocks/etc/servers.en.txt"
 update_cc=$HOME"/openwrt-ss-configs/update-cc"
 
