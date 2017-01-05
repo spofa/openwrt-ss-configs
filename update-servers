@@ -11,7 +11,7 @@ fi;
 
 for server in $serverList
 do
-    printf "%05d %s\n" "$RANDOM" "${server}" >> "${servers_tmp}"
+    printf "%05d %s\n" "`shuf -i 1-99999 -n 1`" "${server}" >> "${servers_tmp}"
 done
 
 sort -n "${servers_tmp}" | cut -c7- > "${servers}"
