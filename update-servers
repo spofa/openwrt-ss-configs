@@ -1,22 +1,5 @@
 #!/bin/sh
-servers_readable=$HOME"/creds/servers.conf.readable"
 servers=$HOME"/creds/servers.conf"
-servers_tmp=$HOME"/creds/servers.conf.tmp"
-
-serverList=`cat "${servers_readable}"`
-
-if [ -e "${servers_tmp}" ]; then
-    rm "${servers_tmp}"
-fi;
-
-for server in $serverList
-do
-    printf "%05d %s\n" "`shuf -i 1-99999 -n 1`" "${server}" >> "${servers_tmp}"
-done
-
-sort -n "${servers_tmp}" | cut -c7- > "${servers}"
-
-rm "${servers_tmp}"
 
 encryptedServers=$HOME"/openwrt-ss-configs/shadowsocks/etc/servers.en.txt"
 update_cc=$HOME"/openwrt-ss-configs/update-cc"
