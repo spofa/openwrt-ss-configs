@@ -9,7 +9,7 @@ if [ -e "${servers_tmp}" ]; then
     rm "${servers_tmp}"
 fi;
 
-for server in serverList
+for server in $serverList
 do
     printf "%05d %s" "$RANDOM" "${server}" >> "${servers_tmp}"
 done
