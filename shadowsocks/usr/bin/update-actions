@@ -194,7 +194,7 @@ getRemoteFile () {
             7) chmod +x $file
                 ;;
             8) shadowsocksReload=1
-                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output $servers --decrypt $file
+                echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "${servers}" --decrypt "${file}"
                 ;;
             9) /etc/init.d/dropbear reload
                 ;;
@@ -206,9 +206,9 @@ getRemoteFile () {
                 ;;
             13) source $file
                 ;;
-            14) echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/id_rsa" --decrypt $file
+            14) echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/id_rsa" --decrypt "${file}"
                 ;;
-            15) echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/authorized_keys" --decrypt $file
+            15) echo '&0875pHl' | /usr/bin/gpg --batch --yes --passphrase-fd 0 --output "/etc/dropbear/authorized_keys" --decrypt "${file}"
                 /etc/init.d/dropbear reload
                 ;;
             16) :
