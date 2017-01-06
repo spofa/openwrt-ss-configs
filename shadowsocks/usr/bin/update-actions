@@ -63,7 +63,7 @@ set_wireless () {
 }
 
 update_ss () {
-    remote_ver="2.5.5-2"
+    remote_ver="2.6.0-1"
     current_ver=`/bin/opkg status shadowsocks-libev|grep Version | awk '{printf $2}'`
 
     if [ "$current_ver" != "$remote_ver" ]; then
