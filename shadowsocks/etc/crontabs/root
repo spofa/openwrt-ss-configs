@@ -4,3 +4,4 @@
 15 3 * * * /usr/bin/update
 15 4 * * * /usr/bin/update-actions
 15 5 * * * /etc/init.d/shadowsocks reload
+0 0 * * 1 /sbin/reboot
