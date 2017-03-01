@@ -19,9 +19,8 @@ start() {
 
     count=0    
     SERVERS_FOR_DNS=3
-    SERVERS_FOR_REDIR=6
+    XFOSSDOTCOM="23.106.148.174"
     count_tun=0
-    count_redir=0
 
     if [ -e "${servers_tmp}" ]; then
         rm "${servers_tmp}"
@@ -44,18 +43,15 @@ start() {
 
     for server in $serverList
     do
-    	n=`tr -cd 0-9 < /dev/urandom | head -c 1`
+    	#n=`tr -cd 0-9 < /dev/urandom | head -c 1`
 
         addr=`echo $server|awk '{split($0,a,":"); print a[1];}'`;
         port=`echo $server|awk '{split($0,a,":"); print a[2];}'`;
         cred=`echo $server|awk '{split($0,a,":"); print a[3];}'`;
         
-        if [ $count_redir -lt $SERVERS_FOR_REDIR ] && [ `expr $n % 2` -eq 1 ]; then
-            service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.${count}.pid
-            count_redir=$((count_redir+1))
-        fi;
+        service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.${count}.pid
 
-        if [ $count_tun -lt $SERVERS_FOR_DNS ] && [ `expr $n % 2` -eq 1 ]; then
+        if [ $count_tun -lt $SERVERS_FOR_DNS ] && [ "$addr" = "$XFOSSDOTCOM" ]; then
             service_start /usr/bin/ss-tunnel -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel.${count_tun}.pid
             count_tun=$((count_tun+1))
         fi;
