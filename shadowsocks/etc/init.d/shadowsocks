@@ -50,7 +50,7 @@ start() {
         
         service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.${count}.pid
 
-        if [ "$addr" = "${TUN_0}" ] || [ "$addr" = "${TUN_1}" ]; then
+        if [ "${addr}" = "${TUN_0}" ] || [ "${addr}" = "${TUN_1}" ]; then
             service_start /usr/bin/ss-tunnel -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel.${count_tun}.pid
         fi;
 
