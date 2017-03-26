@@ -19,7 +19,7 @@ start() {
 
     count=0    
     SERVERS_FOR_DNS=3
-    XFOSSDOTCOM="52.187.134.153"
+    XFOSSDOTCOM="23.106.148.174"
     count_tun=0
 
     if [ -e "${servers_tmp}" ]; then
