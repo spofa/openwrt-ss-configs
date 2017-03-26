@@ -18,9 +18,8 @@ start() {
     servers_random="/etc/servers.used"    
 
     count=0    
-    SERVERS_FOR_DNS=3
-    XFOSSDOTCOM="23.106.148.174"
-    count_tun=0
+    TUN_0="52.187.134.153"
+    TUN_1="23.106.148.174"
 
     if [ -e "${servers_tmp}" ]; then
         rm "${servers_tmp}"
@@ -51,9 +50,8 @@ start() {
         
         service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.${count}.pid
 
-        if [ $count_tun -lt $SERVERS_FOR_DNS ] && [ "$addr" = "$XFOSSDOTCOM" ]; then
+        if [ "$addr" = "TUN_0" ] || [ "$addr" = "TUN_1" ]; then
             service_start /usr/bin/ss-tunnel -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel.${count_tun}.pid
-            count_tun=$((count_tun+1))
         fi;
 
         count=$((count+1))
