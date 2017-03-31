@@ -52,7 +52,11 @@ start() {
         find_addr=`echo "$addr_used" | grep "$addr"`
         if test -z "$find_addr"; then 
             service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir."$count".pid
-            addr_used="$addr_used"" $addr"
+            if [ $count -eq 0 ]; then
+                addr_used="$addr_used""$addr"
+            else
+                addr_used="$addr_used"" $addr"
+            fi;
         fi;
 
         if [ "$addr" = "$OWN_SERVER" ] && [ $OWN_SERVER_USED -eq 0 ]; then
