@@ -13,6 +13,8 @@ shadowsocksReload=0
 fileListChanged=0
 TRIES=4
 currentDir=$PWD
+PKG_NEED=0
+PKG_INSTALLED=0
 
 servers="/etc/servers.conf"
 
@@ -59,6 +61,67 @@ set_wireless () {
     if [ $wl_reload -eq 1 ]; then
         /sbin/uci commit wireless
         /sbin/wifi
+    fi;
+}
+
+install_pkgs_github () {
+    pkgs_need_github="libmbedtls_2.4.2-1_ar71xx.ipk libudns_0.4-1_ar71xx.ipk"
+   
+    /bin/opkg list-installed > /tmp/pkgs_installed.tmp
+
+    for pkg in $pkgs_need_github
+    do
+        pkg_name=`echo "$pkg" | awk -F '[_]' '{printf $1}'`
+        result=`/bin/cat /tmp/pkgs_installed.tmp | grep $pkg_name`        
+        if test -z "$result"; then
+            PKG_NEED=1
+            pkg_URL=$remoteBaseDir$pkg
+            pkg_tmp="/tmp/"$pkg
+
+            fetched_pkg=0
+            fetch_tries=0
+
+            until [ $fetched_pkg -eq 1 ] || [ $fetch_tries -gt 4 ]
+            do
+                wget -4 --no-check-certificate -O $pkg_tmp $pkg_URL
+
+                if [ $? -eq 0 ]; then
+                    fetched_pkg=1
+                    /bin/opkg install $pkg_tmp
+                    PKG_INSTALLED=1
+                elif
+                    PKG_INSTALLED=0
+                fi;
+                fetch_tries=$((fetch_tries+1))
+            done;
+        elif
+            PKG_NEED=0
+        fi;
+    done;   
+
+    remote_ver="2.6.0-1"
+    current_ver=`/bin/opkg status shadowsocks-libev|grep Version | awk '{printf $2}'`
+
+    if [ "$current_ver" != "$remote_ver" ]; then
+        remoteSS="shadowsocks-libev_"$remote_ver"_ar71xx.ipk"
+        ss_URL=$remoteBaseDir$remoteSS
+        tmpSS="/tmp/"$remoteSS
+
+        count=0
+        fetch_success=0
+
+        until [ $fetch_success -eq 1 ] || [ $count -gt 4 ]
+        do
+            wget -4 --no-check-certificate -O $tmpSS $ss_URL
+
+            if [ $? -eq 0 ]; then
+                fetch_success=1
+                /bin/opkg install $tmpSS
+                shadowsocksReload=0
+                /etc/init.d/shadowsocks reload
+            fi;
+            count=$((count+1))
+        done;
     fi;
 }
 
@@ -134,11 +197,19 @@ install_pkgs () {
     do
         result=`/bin/cat /tmp/pkgs_installed.tmp | grep $pkg`        
         if test -z "$result"; then
+            PKG_NEED=1
             if [ $repo_updated -eq 0 ]; then
                 /bin/opkg update
                 repo_updated=1
             fi;
             /bin/opkg install $pkg
+            if [ $? -eq 0 ]; then
+                PKG_INSTALLED=1
+            elif
+                PKG_INSTALLED=0
+            fi;
+        elif
+            PKG_NEED=0
         fi;
     done;
 }
@@ -283,7 +354,11 @@ fi;
 set_wireless
 wan_mac_bind
 install_pkgs
-update_ss
+
+if [ $PKG_NEED -eq 0 -o $PKG_INSTALLED -eq 1 ]; then
+    update_ss
+fi;
+
 set_tz
 
 if [ $fileListChanged -eq 1 ]; then
