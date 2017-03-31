@@ -22,7 +22,7 @@ servers="/etc/servers.conf"
 # set timezone
 update_opkg_repo () {
     repo_update_tries=0
-    util [ $repo_updated -eq 1 -o $repo_update_tries -gt TRIES]
+    until [ $repo_updated -eq 1 -o $repo_update_tries -gt TRIES]
     do
         /bin/opkg update
         if [ $? -eq 0 ]; then
