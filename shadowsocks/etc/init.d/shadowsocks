@@ -55,7 +55,7 @@ start() {
             previous_addr=addr
         fi;
 
-        if [ "${addr}" = "${TUN_0}" ] || [ $additional_server_selected -eq 0 ]; then
+        if [ "$addr" = "$OWN_SERVER" ] || [ $additional_server_selected -eq 0 ]; then
             service_start /usr/bin/ss-tunnel -s "$addr" -p "$port" -k "$cred" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel."$count".pid
 
             if [ "$addr" != "$OWN_SERVER" ]; then
