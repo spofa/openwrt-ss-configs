@@ -49,12 +49,12 @@ start() {
         cred=`echo $server|awk '{split($0,a,":"); print a[3];}'`;
 
         if [ "$addr" != "$addr_used" ]; then 
-            service_start /usr/bin/ss-redir -s "$addr" -p "$port" -k "$cred" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir."$count".pid
-            addr_used=$addr
+            service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir."$count".pid
+            addr_used="$addr"
         fi;
 
         if [ "$addr" = "$OWN_SERVER" ] || [ $additional_server_selected -eq 0 ]; then
-            service_start /usr/bin/ss-tunnel -s "$addr" -p "$port" -k "$cred" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel."$count".pid
+            service_start /usr/bin/ss-tunnel -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel."$count".pid
 
             if [ "$addr" != "$OWN_SERVER" ]; then
                 additional_server_selected=1
