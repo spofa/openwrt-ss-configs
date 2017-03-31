@@ -13,7 +13,6 @@ start() {
     sed -i 's/114.114.114.114/127.0.0.1#3210/' /etc/dnsmasq.d/gfwlist.conf
     /etc/init.d/dnsmasq restart
 
-    servers=`cat /etc/servers.conf`
     servers_tmp="/tmp/servers.conf.tmp"
     servers_random="/etc/servers.used"    
 
@@ -30,6 +29,7 @@ start() {
         rm "$servers_random"
     fi;
 
+    servers=`cat /etc/servers.conf`
     for s in $servers;
     do
         printf "%05d %s\n" "`tr -cd 1-9 < /dev/urandom | head -c 5`" "$s" >> "$servers_tmp"
