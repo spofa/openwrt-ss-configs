@@ -44,9 +44,9 @@ start() {
 
     for server in $serverList
     do
-        addr=`echo $server|awk '{split($0,a,":"); print a[1];}'`;
-        port=`echo $server|awk '{split($0,a,":"); print a[2];}'`;
-        cred=`echo $server|awk '{split($0,a,":"); print a[3];}'`;
+        addr=`echo $server|awk -F '[:]'  '{printf $1}'`;
+        port=`echo $server|awk -F '[:]'  '{printf $2}'`;
+        cred=`echo $server|awk -F '[:]'  '{printf $3}'`;
 
         if [ "$addr" != "$addr_used" ]; then 
             service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir."$count".pid
