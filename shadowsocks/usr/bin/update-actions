@@ -124,7 +124,7 @@ wan_mac_bind () {
 }
 
 install_pkgs () {
-    pkgs_need="ipset wget gnupg curl ca-certificates"
+    pkgs_need="libudns libmbedtls ipset wget gnupg curl ca-certificates"
    
     /bin/opkg list-installed > /tmp/pkgs_installed.tmp
 
