@@ -19,6 +19,7 @@ start() {
 
     count=0    
     OWN_SERVER="23.106.148.174"
+    OWN_SERVER_USED=0
     additional_server_selected=0
 
     if [ -e "$servers_tmp" ]; then
@@ -40,25 +41,28 @@ start() {
 
     serverList=`cat "$servers_random"`
 
-    addr_used="0.0.0.0"
+    addr_used=""
 
     for server in $serverList
     do
         addr=`echo $server|awk -F '[:]'  '{printf $1}'`;
         port=`echo $server|awk -F '[:]'  '{printf $2}'`;
         cred=`echo $server|awk -F '[:]'  '{printf $3}'`;
-
-        if [ "$addr" != "$addr_used" ]; then 
+        
+        find_addr=`echo "$addr_used" | grep "$addr"`
+        if test -z "$find_addr"; then 
             service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir."$count".pid
-            addr_used="$addr"
+            addr_used="$addr_used"" $addr"
         fi;
 
-        if [ "$addr" = "$OWN_SERVER" ] || [ $additional_server_selected -eq 0 ]; then
+        if [ "$addr" = "$OWN_SERVER" ] && [ $OWN_SERVER_USED -eq 0 ]; then
             service_start /usr/bin/ss-tunnel -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel."$count".pid
+            OWN_SERVER_USED=1
+        fi;
 
-            if [ "$addr" != "$OWN_SERVER" ]; then
-                additional_server_selected=1
-            fi;
+        if [ "$addr" != "$OWN_SERVER" ] && [ $additional_server_selected -eq 0 ]; then
+            service_start /usr/bin/ss-tunnel -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel."$count".pid
+            additional_server_selected=1
         fi;
 
         count=$((count+1))
