@@ -15,10 +15,23 @@ TRIES=4
 currentDir=$PWD
 PKG_NEED=0
 PKG_INSTALLED=0
+repo_updated=0
 
 servers="/etc/servers.conf"
 
 # set timezone
+update_opkg_repo () {
+    repo_update_tries=0
+    util [ $repo_updated -eq 1 -o $repo_update_tries -gt TRIES]
+    do
+        /bin/opkg update
+        if [ $? -eq 0 ]; then
+            repo_updated=1
+        fi;
+        repo_update_tries=$((repo_update_tries+1))
+    done;
+}
+
 
 set_tz () {
     tz_reload=0
@@ -65,7 +78,7 @@ set_wireless () {
 }
 
 install_pkgs_github () {
-    pkgs_need_github="libmbedtls_2.4.2-1_ar71xx.ipk libudns_0.4-1_ar71xx.ipk"
+    pkgs_need_github="libsodium_1.0.12-1_ar71xx.ipk libmbedtls_2.4.2-1_ar71xx.ipk libudns_0.4-1_ar71xx.ipk"
    
     /bin/opkg list-installed > /tmp/pkgs_installed.tmp
 
@@ -202,17 +215,13 @@ install_pkgs () {
    
     /bin/opkg list-installed > /tmp/pkgs_installed.tmp
 
-    repo_updated=0
+
 
     for pkg in $pkgs_need
     do
         result=`/bin/cat /tmp/pkgs_installed.tmp | grep $pkg`        
         if test -z "$result"; then
             PKG_NEED=1
-            if [ $repo_updated -eq 0 ]; then
-                /bin/opkg update
-                repo_updated=1
-            fi;
             /bin/opkg install $pkg
             if [ $? -eq 0 ]; then
                 PKG_INSTALLED=1
@@ -364,8 +373,12 @@ fi;
 
 set_wireless
 wan_mac_bind
-install_pkgs
-install_pkgs_github
+update_opkg_repo
+
+if [ $repo_updated -eq 1 ]; then 
+    install_pkgs
+    install_pkgs_github
+fi;
 
 if [ $PKG_NEED -eq 0 -o $PKG_INSTALLED -eq 1 ]; then
     update_ss
