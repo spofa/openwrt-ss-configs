@@ -360,7 +360,7 @@ fi;
 set_wireless
 wan_mac_bind
 
-install_pkgs
+install_pkgs_opkg
 install_pkgs_github
 
 if [ $PKG_NEED -eq 0 -o $PKG_INSTALLED -eq 1 ]; then
