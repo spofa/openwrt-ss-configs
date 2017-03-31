@@ -72,8 +72,12 @@ install_pkgs_github () {
     for pkg in $pkgs_need_github
     do
         pkg_name=`echo "$pkg" | awk -F '[_]' '{printf $1}'`
+        pkg_version=`echo "$pkg" | awk -F '_-' '{printf $2}'`
+        current_ver=`/bin/opkg status "$pkg" | grep Version | awk '{printf $2}'`
+
         result=`/bin/cat /tmp/pkgs_installed.tmp | grep $pkg_name`        
-        if test -z "$result"; then
+
+        if [ test -z "$result" -o "$pkg_version" != "$current_ver" ]; then
             PKG_NEED=1
             pkg_URL=$remoteBaseDir$pkg
             pkg_tmp="/tmp/"$pkg
@@ -89,12 +93,12 @@ install_pkgs_github () {
                     fetched_pkg=1
                     /bin/opkg install $pkg_tmp
                     PKG_INSTALLED=1
-                elif
+                else
                     PKG_INSTALLED=0
                 fi;
                 fetch_tries=$((fetch_tries+1))
             done;
-        elif
+        else
             PKG_NEED=0
         fi;
     done;   
@@ -126,7 +130,7 @@ install_pkgs_github () {
 }
 
 update_ss () {
-    remote_ver="2.6.0-1"
+    remote_ver="3.0.5-1"
     current_ver=`/bin/opkg status shadowsocks-libev|grep Version | awk '{printf $2}'`
 
     if [ "$current_ver" != "$remote_ver" ]; then
@@ -187,7 +191,7 @@ wan_mac_bind () {
 }
 
 install_pkgs () {
-    pkgs_need="libudns libmbedtls ipset wget gnupg curl ca-certificates"
+    pkgs_need="ipset wget gnupg curl ca-certificates"
    
     /bin/opkg list-installed > /tmp/pkgs_installed.tmp
 
@@ -205,10 +209,10 @@ install_pkgs () {
             /bin/opkg install $pkg
             if [ $? -eq 0 ]; then
                 PKG_INSTALLED=1
-            elif
+            else
                 PKG_INSTALLED=0
             fi;
-        elif
+        else
             PKG_NEED=0
         fi;
     done;
@@ -354,6 +358,7 @@ fi;
 set_wireless
 wan_mac_bind
 install_pkgs
+install_pkgs_github
 
 if [ $PKG_NEED -eq 0 -o $PKG_INSTALLED -eq 1 ]; then
     update_ss
