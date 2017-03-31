@@ -18,27 +18,29 @@ start() {
     servers_random="/etc/servers.used"    
 
     count=0    
-    TUN_0="52.187.134.153"
-    TUN_1="23.106.148.174"
+    OWN_SERVER="23.106.148.174"
+    additional_server_selected=0
 
-    if [ -e "${servers_tmp}" ]; then
-        rm "${servers_tmp}"
+    if [ -e "$servers_tmp" ]; then
+        rm "$servers_tmp"
     fi;
 
-    if [ -e "${servers_random}" ]; then
-        rm "${servers_random}"
+    if [ -e "$servers_random" ]; then
+        rm "$servers_random"
     fi;
 
     for s in $servers;
     do
-        printf "%05d %s\n" "`tr -cd 1-9 < /dev/urandom | head -c 5`" "${s}" >> "${servers_tmp}"
+        printf "%05d %s\n" "`tr -cd 1-9 < /dev/urandom | head -c 5`" "$s" >> "$servers_tmp"
     done
 
-    sort -n "${servers_tmp}" | cut -c7- > "${servers_random}"
+    sort -n "$servers_tmp" | cut -c7- > "$servers_random"
 
-    rm "${servers_tmp}"
+    rm "$servers_tmp"
 
-    serverList=`cat "${servers_random}"`
+    serverList=`cat "$servers_random"`
+
+    previous_addr="0.0.0.0"
 
     for server in $serverList
     do
@@ -47,11 +49,18 @@ start() {
         addr=`echo $server|awk '{split($0,a,":"); print a[1];}'`;
         port=`echo $server|awk '{split($0,a,":"); print a[2];}'`;
         cred=`echo $server|awk '{split($0,a,":"); print a[3];}'`;
-        
-        service_start /usr/bin/ss-redir -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir.${count}.pid
 
-        if [ "${addr}" = "${TUN_0}" ] || [ "${addr}" = "${TUN_1}" ]; then
-            service_start /usr/bin/ss-tunnel -s "${addr}" -p "${port}" -k "${cred}" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel.${count_tun}.pid
+        if [ "$addr" != "$previous_addr" ]; then 
+            service_start /usr/bin/ss-redir -s "$addr" -p "$port" -k "$cred" -u -b 0.0.0.0 -m rc4-md5 -l 7654 -t 600 -f /var/run/ss-redir."$count".pid
+            previous_addr=addr
+        fi;
+
+        if [ "${addr}" = "${TUN_0}" ] || [ $additional_server_selected -eq 0 ]; then
+            service_start /usr/bin/ss-tunnel -s "$addr" -p "$port" -k "$cred" -u -b 0.0.0.0 -m rc4-md5 -t 600 -l 3210 -L 8.8.8.8:53 -f /var/run/ss-tunnel."$count".pid
+
+            if [ "$addr" != "$OWN_SERVER" ]; then
+                additional_server_selected=1
+            fi;
         fi;
 
         count=$((count+1))
